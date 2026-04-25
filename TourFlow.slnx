@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TourFlow.Client/TourFlow.Client.csproj" />
+  <Project Path="TourFlow/TourFlow.csproj" />
+</Solution>
