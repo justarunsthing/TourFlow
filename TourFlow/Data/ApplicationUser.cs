@@ -1,6 +1,6 @@
+using TourFlow.Models;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-using TourFlow.Models;
 
 namespace TourFlow.Data
 {
@@ -15,5 +15,10 @@ namespace TourFlow.Data
 
         public Guid? ProfilePictureId { get; set; }
         public virtual ImageUpload? ProfilePicture { get; set; }
+
+        // Navigation properties
+        public int TravelAgentId { get; set; }
+        public virtual TravelAgent? TravelAgent { get; set; }
+        public virtual ICollection<TourEnquiry> Enquiries { get; set; } = [];
     }
 }
