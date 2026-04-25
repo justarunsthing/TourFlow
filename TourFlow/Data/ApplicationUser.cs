@@ -17,8 +17,6 @@ namespace TourFlow.Data
         public virtual ImageUpload? ProfilePicture { get; set; }
 
         // Navigation properties
-        public int TravelAgentId { get; set; }
-        public virtual TravelAgent? TravelAgent { get; set; }
-        public virtual ICollection<TourEnquiry> Enquiries { get; set; } = [];
+        public virtual ICollection<TourEnquiry> AssignedEnquiries { get; set; } = [];
     }
 }

@@ -16,12 +16,14 @@ namespace TourFlow.Models
         public string? AdditionalNotes { get; set; }
         public DateTimeOffset Created { get; set; }
         public DateTimeOffset? Updated { get; set; }
-        public EnquiryStatus Status { get; set; }
+        public EnquiryStatus Status { get; set; } = EnquiryStatus.New;
 
         // Navigation properties
-        public string? TravelAgentId { get; set; }
-        public virtual ApplicationUser? TravelAgent { get; set; }
+        public int TravelAgentId { get; set; }
+        public virtual TravelAgent TravelAgent { get; set; } = null!;
         public string? AssignedToId { get; set; }
         public virtual ApplicationUser? AssignedTo { get; set; }
+        public virtual Quotation? Quotation { get; set; }
+        public virtual Booking? Booking { get; set; }
     }
 }

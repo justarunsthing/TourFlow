@@ -6,8 +6,9 @@
         public string? CompanyName { get; set; }
         public string? ContactPerson { get; set; }
         public string? Phone { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         // Navigation properties
-        public ICollection<TourEnquiry> TourEnquiries { get; set; } = [];
+        public virtual ICollection<TourEnquiry> TourEnquiries { get; set; } = [];
     }
 }
