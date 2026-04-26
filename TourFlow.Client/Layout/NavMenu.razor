@@ -4,40 +4,39 @@
 
 <MudNavMenu>
     <AuthorizeView>
-        <MudNavGroup Title="Company" Expanded="true">
+        <MudNavGroup Title="Home" Expanded="true">
             <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">
                 Dashboard
             </MudNavLink>
-            <MudNavLink Href="/company" Icon="@Icons.Material.Filled.Business">
-                Company Details
+        </MudNavGroup>
+        <MudNavGroup Title="Enquiries" Expanded>
+            <MudNavLink Href="/enquiries" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
+                All Enquiries
+            </MudNavLink>
+            <MudNavLink Href="/enquiries/assigned" Icon="@Icons.Material.Filled.FolderShared">
+                My Enquiries
             </MudNavLink>
         </MudNavGroup>
-        <MudNavGroup Title="Projects" Expanded>
-            <MudNavLink Href="/projects" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
-                All Projects
+        <MudNavGroup Title="Quotations" Expanded>
+            <MudNavLink Href="/quotations" Icon="@Icons.Material.Filled.Assignment">
+                All Quotations
             </MudNavLink>
-            <MudNavLink Href="/projects/assigned" Icon="@Icons.Material.Filled.FolderShared">
-                My Projects
+            <MudNavLink Href="/quotations/assigned" Icon="@Icons.Material.Filled.AssignmentInd">
+                My Quotations
             </MudNavLink>
-            <MudNavLink Href="/projects/archived" Icon="@Icons.Material.Filled.Archive">
-                Archived Projects
+            <MudNavLink Href="/quotations/create" Icon="@Icons.Material.Filled.AssignmentLate">
+                Create Quotation
             </MudNavLink>
         </MudNavGroup>
-        <MudNavGroup Title="Tickets" Expanded>
-            <MudNavLink Href="/tickets" Icon="@Icons.Material.Filled.Assignment">
-                Open Tickets
+        <MudNavGroup Title="Bookings" Expanded>
+            <MudNavLink Href="/booking" Icon="@Icons.Material.Filled.Assignment">
+                All Bookings
             </MudNavLink>
-            <MudNavLink Href="/tickets/assigned" Icon="@Icons.Material.Filled.AssignmentInd">
-                My Tickets
+            <MudNavLink Href="/booking/assigned" Icon="@Icons.Material.Filled.AssignmentInd">
+                My Bookings
             </MudNavLink>
-            <MudNavLink Href="/tickets/resolved" Icon="@Icons.Material.Filled.AssignmentReturned">
-                Resolved Tickets
-            </MudNavLink>
-            <MudNavLink Href="/tickets/archived" Icon="@Icons.Material.Filled.Archive">
-                Archived Tickets
-            </MudNavLink>
-            <MudNavLink Href="/tickets/create" Icon="@Icons.Material.Filled.AssignmentLate">
-                Submit Ticket
+            <MudNavLink Href="/booking/create" Icon="@Icons.Material.Filled.AssignmentLate">
+                Create Booking
             </MudNavLink>
         </MudNavGroup>
     </AuthorizeView>
