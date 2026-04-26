@@ -2,9 +2,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using TourFlow.Client.Interfaces;
 using TourFlow.Components;
 using TourFlow.Components.Account;
 using TourFlow.Data;
+using TourFlow.Interfaces;
+using TourFlow.Repository;
+using TourFlow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +50,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddScoped<IEnquiryRepository, EnquiryRepository>();
+builder.Services.AddScoped<IEnquiryDTOService, EnquiryDTOService>();
 
 var app = builder.Build();
 
