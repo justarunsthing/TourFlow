@@ -1,4 +1,5 @@
 ﻿using TourFlow.Client.Enums;
+using TourFlow.Client.Models;
 
 namespace TourFlow.Models
 {
@@ -19,5 +20,27 @@ namespace TourFlow.Models
 
         // Navigation properties
         public virtual Booking? Booking { get; set; }
+    }
+
+    public static class QuotationExtensions
+    {
+        public static QuotationDTO ToDTO(this Quotation q)
+        {
+            return new QuotationDTO
+            {
+                Id = q.Id,
+                QuotationNumber = q.QuotationNumber ?? string.Empty,
+                TourEnquiryId = q.TourEnquiryId,
+                TotalAmount = q.TotalAmount,
+                Currency = q.Currency,
+                AIItinerarySummary = q.AIItinerarySummary,
+                AdditionalNotes = q.AdditionalNotes,
+                Status = q.Status,
+                Created = q.Created,
+                SentAt = q.SentAt,
+                Updated = q.Updated,
+                EnquiryNumber = q.TourEnquiry?.EnquiryNumber
+            };
+        }
     }
 }

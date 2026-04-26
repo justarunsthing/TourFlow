@@ -1,4 +1,5 @@
 ﻿using TourFlow.Client.Enums;
+using TourFlow.Client.Models;
 
 namespace TourFlow.Models
 {
@@ -16,5 +17,25 @@ namespace TourFlow.Models
         public DateTimeOffset BookingDate { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? ConfirmedAt { get; set; }
         public DateTimeOffset? Updated { get; set; }
+    }
+
+    public static class BookingExtensions
+    {
+        public static BookingDTO ToDTO(this Booking b)
+        {
+            return new BookingDTO
+            {
+                Id = b.Id,
+                BookingNumber = b.BookingNumber ?? string.Empty,
+                TourEnquiryId = b.TourEnquiryId,
+                TotalAmount = b.TotalAmount,
+                Currency = b.Currency,
+                Status = b.Status,
+                BookingDate = b.BookingDate,
+                ConfirmedAt = b.ConfirmedAt,
+                EnquiryNumber = b.TourEnquiry?.EnquiryNumber,
+                QuotationNumber = b.Quotation?.QuotationNumber
+            };
+        }
     }
 }

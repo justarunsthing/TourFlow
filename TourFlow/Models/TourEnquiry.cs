@@ -1,5 +1,6 @@
 ﻿using TourFlow.Data;
 using TourFlow.Client.Enums;
+using TourFlow.Client.Models;
 
 namespace TourFlow.Models
 {
@@ -25,5 +26,35 @@ namespace TourFlow.Models
         public virtual ApplicationUser? AssignedTo { get; set; }
         public virtual Quotation? Quotation { get; set; }
         public virtual Booking? Booking { get; set; }
+    }
+
+    public static class TourEnquiryExtensions
+    {
+        public static TourEnquiryDTO ToDTO(this TourEnquiry e)
+        {
+            return new TourEnquiryDTO
+            {
+                Id = e.Id,
+                EnquiryNumber = e.EnquiryNumber ?? string.Empty,
+                GroupSize = e.GroupSize,
+                StartDate = e.StartDate,
+                EndDate = e.EndDate,
+                Destination = e.Destination ?? string.Empty,
+                Budget = e.Budget ?? string.Empty,
+                RequestedServices = e.RequestedServices ?? string.Empty,
+                AdditionalNotes = e.AdditionalNotes ?? string.Empty,
+                Created = e.Created,
+                Updated = e.Updated,
+                Status = e.Status,
+                TravelAgentId = e.TravelAgentId,
+                TravelAgentCompanyName = e.TravelAgent?.CompanyName ?? string.Empty,
+                AssignedToId = e.AssignedToId,
+                AssignedToFullName = e.AssignedTo != null ? $"{e.AssignedTo.FirstName} {e.AssignedTo.LastName}" : null,
+                QuotationId = e.Quotation?.Id,
+                QuotationNumber = e.Quotation?.QuotationNumber,
+                BookingId = e.Booking?.Id,
+                BookingNumber = e.Booking?.BookingNumber
+            };
+        }
     }
 }
