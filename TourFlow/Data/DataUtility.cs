@@ -90,9 +90,8 @@ namespace TourFlow.Data
                     .RuleFor(t => t.CompanyName, f => f.Company.CompanyName())
                     .RuleFor(t => t.ContactPerson, f => f.Name.FullName())
                     .RuleFor(t => t.Phone, f => f.Phone.PhoneNumber("+44 ## ### ####"))
-                    .RuleFor(t => t.Email, (f, t) => f.Internet.Email(t.ContactPerson!.ToLower().Replace(" ", ".")));
+                    .RuleFor(t => t.Email, (f, t) => $"{t.ContactPerson!.ToLower().Replace(" ", ".")}@mailinator.com");
 
-                // Generate 5 travel agents dynamically
                 var travelAgents = faker.Generate(5);
 
                 await context.TravelAgents.AddRangeAsync(travelAgents);
@@ -214,17 +213,12 @@ namespace TourFlow.Data
                     return;
                 }
 
-                // Get seeded users
                 var opsManager = await userManager.FindByEmailAsync("opsmanager@tourflow.com");
                 var salesUsers = await userManager.GetUsersInRoleAsync(Role.SalesExecutive.ToString());
-
-                if (opsManager == null || !salesUsers.Any())
-                {
-                    Console.WriteLine("Warning: Could not find required users for assignment. Enquiries will be unassigned.");
-                }
-
                 var random = new Random();
                 var enquiries = new List<TourEnquiry>();
+                var quotations = new List<Quotation>();
+                var bookings = new List<Booking>();
 
                 foreach (var agentId in seededTravelAgentIds)
                 {
@@ -234,17 +228,7 @@ namespace TourFlow.Data
                     {
                         var status = (EnquiryStatus)random.Next(0, 6);
 
-                        string? assignedToId = null;
-
-                        if (status == EnquiryStatus.New)
-                        {
-                            assignedToId = opsManager?.Id;
-                        }
-                        else if (salesUsers.Any())
-                        {
-                            var randomSales = salesUsers[random.Next(salesUsers.Count)];
-                            assignedToId = randomSales.Id;
-                        }
+                        string? assignedToId = status == EnquiryStatus.New ? opsManager?.Id : salesUsers.Any() ? salesUsers[random.Next(salesUsers.Count)].Id : null;
 
                         var enquiry = new TourEnquiry
                         {
@@ -252,9 +236,7 @@ namespace TourFlow.Data
                             GroupSize = random.Next(8, 35),
                             StartDate = DateTimeOffset.UtcNow.AddDays(random.Next(30, 120)),
                             EndDate = DateTimeOffset.UtcNow.AddDays(random.Next(140, 160)),
-                            Destination = random.Next(0, 2) == 0
-                                ? "Italy (Rome & Florence)"
-                                : "Spain (Barcelona & Costa Brava)",
+                            Destination = random.Next(0, 2) == 0 ? "Italy (Rome & Florence)" : "Spain (Barcelona & Costa Brava)",
                             Budget = random.Next(0, 3) switch
                             {
                                 0 => "£25,000 - £35,000",
@@ -262,9 +244,7 @@ namespace TourFlow.Data
                                 _ => "£60,000 - £80,000"
                             },
                             RequestedServices = "Coach, Hotel, Tour Leader, Meals",
-                            AdditionalNotes = random.Next(0, 2) == 0
-                                ? "Clients prefer 4-star hotels with central location."
-                                : "",
+                            AdditionalNotes = random.Next(0, 2) == 0 ? "Clients prefer 4-star hotels with central location." : "",
                             Status = status,
                             TravelAgentId = agentId,
                             AssignedToId = assignedToId,
@@ -276,6 +256,60 @@ namespace TourFlow.Data
                 }
 
                 await context.TourEnquiries.AddRangeAsync(enquiries);
+                await context.SaveChangesAsync();
+
+                foreach (var enquiry in enquiries)
+                {
+                    if (enquiry.Status == EnquiryStatus.Rejected || enquiry.Status == EnquiryStatus.Closed)
+                        continue;
+
+                    var quotation = new Quotation
+                    {
+                        QuotationNumber = $"QUO-{DateTime.UtcNow:yyyyMMdd}-{random.Next(1000, 9999)}",
+                        TourEnquiryId = enquiry.Id,
+                        TotalAmount = enquiry.GroupSize * random.Next(1200, 2800),
+                        Currency = "GBP",
+                        AIItinerarySummary = "A wonderful journey through historic cities with premium accommodations.",
+                        Status = (QuotationStatus)random.Next(0, 4),
+                        Created = enquiry.Created.AddDays(random.Next(1, 5)),
+                        SentAt = enquiry.Created.AddDays(random.Next(3, 8))
+                    };
+
+                    quotations.Add(quotation);
+
+                    if (quotation.Status == QuotationStatus.Accepted)
+                    {
+                        var booking = new Booking
+                        {
+                            BookingNumber = $"BK-{DateTime.UtcNow:yyyyMMdd}-{random.Next(1000, 9999)}",
+                            TourEnquiryId = enquiry.Id,
+                            QuotationId = quotation.Id,
+                            TotalAmount = quotation.TotalAmount,
+                            Currency = "GBP",
+                            Status = BookingStatus.Confirmed,
+                            BookingDate = quotation.SentAt?.AddDays(random.Next(2, 7)) ?? DateTimeOffset.UtcNow,
+                            ConfirmedAt = DateTimeOffset.UtcNow.AddDays(-random.Next(0, 10))
+                        };
+
+                        bookings.Add(booking);
+                        enquiry.Status = EnquiryStatus.Converted;
+                    }
+                }
+
+                await context.Quotations.AddRangeAsync(quotations);
+                await context.SaveChangesAsync();
+
+                foreach (var booking in bookings)
+                {
+                    var relatedQuotation = quotations.FirstOrDefault(q => q.TourEnquiryId == booking.TourEnquiryId);
+
+                    if (relatedQuotation != null)
+                    {
+                        booking.QuotationId = relatedQuotation.Id;
+                    }
+                }
+
+                await context.Bookings.AddRangeAsync(bookings);
                 await context.SaveChangesAsync();
             }
             catch (Exception ex)
