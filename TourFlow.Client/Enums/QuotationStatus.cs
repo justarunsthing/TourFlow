@@ -5,7 +5,6 @@
         Draft,
         Sent,
         Accepted,
-        Rejected,
-        Expired
+        Rejected
     }
 }

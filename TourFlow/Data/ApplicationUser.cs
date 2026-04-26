@@ -1,6 +1,6 @@
-using TourFlow.Models;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using TourFlow.Models;
 
 namespace TourFlow.Data
 {

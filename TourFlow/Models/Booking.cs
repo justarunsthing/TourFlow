@@ -16,8 +16,5 @@ namespace TourFlow.Models
         public DateTimeOffset BookingDate { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? ConfirmedAt { get; set; }
         public DateTimeOffset? Updated { get; set; }
-
-        // Navigation properties
-        public virtual Quotation? SourceQuotation { get; set; }
     }
 }

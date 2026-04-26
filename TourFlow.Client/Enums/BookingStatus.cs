@@ -5,7 +5,6 @@
         New,
         InProgress,
         Confirmed,
-        OnHold,
         Cancelled,
         Completed
     }
