@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using TourFlow.Components;
 using TourFlow.Components.Account;
 using TourFlow.Data;
@@ -19,6 +20,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuth
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddOutputCache();
+builder.Services.AddMudServices();
 
 builder.Services.AddAuthentication(options =>
     {
