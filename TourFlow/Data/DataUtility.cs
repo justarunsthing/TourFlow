@@ -38,7 +38,7 @@ namespace TourFlow.Data
                 Username = userInfo[0],
                 Password = userInfo[1],
                 Database = database,
-                SslMode = SslMode.Prefer,
+                SslMode = SslMode.Prefer
             };
 
             return builder.ToString();
@@ -62,7 +62,7 @@ namespace TourFlow.Data
             await SeedRolesAsync(roleManagerSvc);
             await SeedDefaultTravelAgentsAsync(dbContextSvc);
             await SeedDefaultUsersAsync(userManagerSvc, defaultPassword);
-            await SeedDefaultEnquiriesQuotationsAndBookingsAsync(dbContextSvc);
+            await SeedDefaultEnquiriesQuotationsAndBookingsAsync(dbContextSvc, userManagerSvc);
             await dbContextSvc.DisposeAsync();
         }
 
@@ -205,7 +205,7 @@ namespace TourFlow.Data
             }
         }
 
-        public static async Task SeedDefaultEnquiriesQuotationsAndBookingsAsync(ApplicationDbContext context)
+        public static async Task SeedDefaultEnquiriesQuotationsAndBookingsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             try
             {
@@ -214,9 +214,13 @@ namespace TourFlow.Data
                     return;
                 }
 
-                if (seededTravelAgentIds.Count == 0)
+                // Get seeded users
+                var opsManager = await userManager.FindByEmailAsync("opsmanager@tourflow.com");
+                var salesUsers = await userManager.GetUsersInRoleAsync(Role.SalesExecutive.ToString());
+
+                if (opsManager == null || !salesUsers.Any())
                 {
-                    return;
+                    Console.WriteLine("Warning: Could not find required users for assignment. Enquiries will be unassigned.");
                 }
 
                 var random = new Random();
@@ -224,17 +228,33 @@ namespace TourFlow.Data
 
                 foreach (var agentId in seededTravelAgentIds)
                 {
-                    int numberOfEnquiries = random.Next(2, 5);
+                    int numEnquiries = random.Next(2, 5);
 
-                    for (int i = 0; i < numberOfEnquiries; i++)
+                    for (int i = 0; i < numEnquiries; i++)
                     {
+                        var status = (EnquiryStatus)random.Next(0, 6);
+
+                        string? assignedToId = null;
+
+                        if (status == EnquiryStatus.New)
+                        {
+                            assignedToId = opsManager?.Id;
+                        }
+                        else if (salesUsers.Any())
+                        {
+                            var randomSales = salesUsers[random.Next(salesUsers.Count)];
+                            assignedToId = randomSales.Id;
+                        }
+
                         var enquiry = new TourEnquiry
                         {
                             EnquiryNumber = $"ENQ-{DateTime.UtcNow:yyyyMMdd}-{random.Next(1000, 9999)}",
                             GroupSize = random.Next(8, 35),
                             StartDate = DateTimeOffset.UtcNow.AddDays(random.Next(30, 120)),
                             EndDate = DateTimeOffset.UtcNow.AddDays(random.Next(140, 160)),
-                            Destination = random.Next(0, 2) == 0 ? "Italy (Rome & Florence)" : "Spain (Barcelona & Costa Brava)",
+                            Destination = random.Next(0, 2) == 0
+                                ? "Italy (Rome & Florence)"
+                                : "Spain (Barcelona & Costa Brava)",
                             Budget = random.Next(0, 3) switch
                             {
                                 0 => "£25,000 - £35,000",
@@ -242,10 +262,12 @@ namespace TourFlow.Data
                                 _ => "£60,000 - £80,000"
                             },
                             RequestedServices = "Coach, Hotel, Tour Leader, Meals",
-                            AdditionalNotes = random.Next(0, 3) == 0 ? "Clients prefer 4-star hotels with central location" : "",
-                            Status = (EnquiryStatus)random.Next(0, 6),
+                            AdditionalNotes = random.Next(0, 2) == 0
+                                ? "Clients prefer 4-star hotels with central location."
+                                : "",
+                            Status = status,
                             TravelAgentId = agentId,
-                            AssignedToId = random.Next(0, 2) == 0 ? "admin@tourflow.com" : null,
+                            AssignedToId = assignedToId,
                             Created = DateTimeOffset.UtcNow.AddDays(-random.Next(0, 15))
                         };
 
@@ -255,56 +277,12 @@ namespace TourFlow.Data
 
                 await context.TourEnquiries.AddRangeAsync(enquiries);
                 await context.SaveChangesAsync();
-
-                var quotations = new List<Quotation>();
-                var bookings = new List<Booking>();
-
-                foreach (var enquiry in enquiries)
-                {
-                    if (enquiry.Status != EnquiryStatus.Rejected && enquiry.Status != EnquiryStatus.Closed)
-                    {
-                        var quotation = new Quotation
-                        {
-                            QuotationNumber = $"QUO-{DateTime.UtcNow:yyyyMMdd}-{random.Next(1000, 9999)}",
-                            TourEnquiryId = enquiry.Id,
-                            TotalAmount = enquiry.GroupSize * random.Next(1200, 2800),
-                            Currency = "GBP",
-                            AIItinerarySummary = "Beautiful 7-day itinerary exploring historic cities with premium accommodations.",
-                            Status = (QuotationStatus)random.Next(0, 4),
-                            Created = enquiry.Created.AddDays(random.Next(1, 5)),
-                            SentAt = enquiry.Created.AddDays(random.Next(3, 8))
-                        };
-
-                        quotations.Add(quotation);
-
-                        if (quotation.Status == QuotationStatus.Accepted)
-                        {
-                            var booking = new Booking
-                            {
-                                BookingNumber = $"BK-{DateTime.UtcNow:yyyyMMdd}-{random.Next(1000, 9999)}",
-                                TourEnquiryId = enquiry.Id,
-                                QuotationId = quotation.Id,
-                                TotalAmount = quotation.TotalAmount,
-                                Currency = "GBP",
-                                Status = BookingStatus.Confirmed,
-                                BookingDate = quotation.SentAt?.AddDays(random.Next(2, 7)) ?? DateTimeOffset.UtcNow,
-                                ConfirmedAt = DateTimeOffset.UtcNow.AddDays(-random.Next(0, 10))
-                            };
-
-                            bookings.Add(booking);
-                            enquiry.Status = EnquiryStatus.Converted;
-                        }
-                    }
-                }
-
-                await context.Quotations.AddRangeAsync(quotations);
-                await context.Bookings.AddRangeAsync(bookings);
-                await context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 Console.WriteLine("*************  ERROR  *************");
                 Console.WriteLine("Error Seeding Enquiries, Quotations and Bookings");
+                Console.WriteLine(ex.Message);
                 Console.WriteLine("***********************************");
                 throw;
             }
