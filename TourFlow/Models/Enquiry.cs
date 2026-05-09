@@ -49,8 +49,6 @@ namespace TourFlow.Models
         public virtual TravelAgent TravelAgent { get; set; } = null!;
         public string? AssignedToId { get; set; }
         public virtual ApplicationUser? AssignedTo { get; set; }
-        public int? BookingId { get; set; }
-        public virtual Booking? Booking { get; set; }
     }
 
     public static class EnquiryExtensions
@@ -70,7 +68,6 @@ namespace TourFlow.Models
                 Created = e.Created,
                 Updated = e.Updated,
                 Status = e.Status,
-                Booking = e.Booking?.ToDTO(),
                 AssignedTo = e.AssignedTo?.ToDTO()
             };
         }

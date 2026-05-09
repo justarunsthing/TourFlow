@@ -42,7 +42,6 @@ namespace TourFlow.Client.Models
         }
         public EnquiryStatus Status { get; set; } = EnquiryStatus.New;
         public UserDTO? AssignedTo { get; set; }
-        public BookingDTO? Booking { get; set; }
 
         #region Helper properties
 
