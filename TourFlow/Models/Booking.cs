@@ -1,4 +1,5 @@
-﻿using TourFlow.Client.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using TourFlow.Client.Enums;
 using TourFlow.Client.Models;
 using TourFlow.Data;
 
@@ -24,10 +25,12 @@ namespace TourFlow.Models
             get => _updated;
             set => _updated = value?.ToUniversalTime();
         }
+
+        [Required]
         public int EnquiryId { get; set; }
-        public virtual Enquiry? Enquiry { get; set; }
-        public string? CreatorUserId { get; set; }
-        public virtual ApplicationUser? CreatorUser { get; set; }
+        public virtual Enquiry Enquiry { get; set; } = null!;
+        public string? CreatedById { get; set; }
+        public virtual ApplicationUser? CreatedBy { get; set; }
     }
 
     public static class BookingExtensions
@@ -44,9 +47,8 @@ namespace TourFlow.Models
                 Created = b.Created,
                 Updated = b.Updated,
                 EnquiryId = b.EnquiryId,
-                Enquiry = b.Enquiry?.ToDTO(),
-                CreatorUserId = b.CreatorUserId,
-                CreatorUser = b.CreatorUser?.ToDTO()
+                CreatedById = b.CreatedById,
+                CreatedBy = b.CreatedBy?.ToDTO()
             };
         }
     }

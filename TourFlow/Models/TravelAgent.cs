@@ -1,18 +1,20 @@
-﻿using Bogus.DataSets;
+﻿using TourFlow.Data;
 using TourFlow.Client.Models;
-using TourFlow.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace TourFlow.Models
 {
     public class TravelAgent
     {
         public int Id { get; set; }
-        public string? Name { get; set; }
+
+        [Required]
+        public string Name { get; set; } = string.Empty;
         public Guid? ImageId { get; set; } // FK
 
         // Navigation properties
         public virtual FileUpload? Image { get; set; }
-        public virtual ICollection<Enquiry> TourEnquiries { get; set; } = [];
+        public virtual ICollection<Enquiry> Enquiries { get; set; } = [];
         public virtual ICollection<ApplicationUser> Members { get; set; } = [];
     }
 
@@ -27,7 +29,7 @@ namespace TourFlow.Models
                 ImageUrl = agent.ImageId.HasValue
                     ? $"uploads/{agent.ImageId}"
                     : $"https://api.dicebear.com/9.x/glass/svg?seed={agent.Name}",
-                Enquiries = [..agent.TourEnquiries.Select(e => e.ToDTO())],
+                Enquiries = [..agent.Enquiries.Select(e => e.ToDTO())],
                 Members = [..agent.Members.Select(e => e.ToDTO())]
             };
         }

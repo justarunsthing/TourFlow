@@ -12,6 +12,8 @@ namespace TourFlow.Client.Models
         private DateTimeOffset? _endDate;
 
         public int Id { get; set; }
+        public int TravelAgentId { get; set; }
+        public string TravelAgentName { get; set; } = string.Empty;
         public int GroupSize { get; set; }
         public DateTimeOffset? StartDate
         {
@@ -38,9 +40,9 @@ namespace TourFlow.Client.Models
             get => _updated;
             set => _updated = value?.ToUniversalTime();
         }
-        public EnquiryStatus Status { get; set; }
-        public BookingDTO? Booking { get; set; }
+        public EnquiryStatus Status { get; set; } = EnquiryStatus.New;
         public UserDTO? AssignedTo { get; set; }
+        public BookingDTO? Booking { get; set; }
 
         #region Helper properties
 

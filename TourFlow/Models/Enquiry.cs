@@ -1,6 +1,7 @@
 ﻿using TourFlow.Data;
 using TourFlow.Client.Enums;
 using TourFlow.Client.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace TourFlow.Models
 {
@@ -40,12 +41,15 @@ namespace TourFlow.Models
             set => _updated = value?.ToUniversalTime();
         }
         public EnquiryStatus Status { get; set; } = EnquiryStatus.New;
+        public string? CreatedById { get; set; }
 
         // Navigation properties
+        [Required]
         public int TravelAgentId { get; set; }
         public virtual TravelAgent TravelAgent { get; set; } = null!;
         public string? AssignedToId { get; set; }
         public virtual ApplicationUser? AssignedTo { get; set; }
+        public int? BookingId { get; set; }
         public virtual Booking? Booking { get; set; }
     }
 
