@@ -3,12 +3,15 @@
 @inject NavigationManager NavigationManager
 
 <MudNavMenu>
-    <AuthorizeView>
+    <AuthorizeView Roles="@($"{Role.Admin}")">
         <MudNavGroup Title="Home" Expanded="true">
             <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">
                 Dashboard
             </MudNavLink>
         </MudNavGroup>
+    </AuthorizeView>
+    <AuthorizeView>
+
         <MudNavGroup Title="Enquiries" Expanded>
             <MudNavLink Href="/enquiries" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
                 All Enquiries

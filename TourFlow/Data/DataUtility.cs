@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TourFlow.Client.Enums;
 using TourFlow.Models;
+using static MudBlazor.CategoryTypes;
 
 namespace TourFlow.Data
 {
@@ -55,8 +56,8 @@ namespace TourFlow.Data
             string defaultPassword = configurationSvc["DefaultPassword"] ?? throw new ApplicationException("Error seeding data - no DefaultPassword configured!");
 
             await SeedRolesAsync(roleManagerSvc);
-            await SeedDefaultTravelAgentsAsync(dbContextSvc);
             await SeedDefaultUsersAsync(userManagerSvc, dbContextSvc, defaultPassword);
+            await SeedSampleEnquiriesAsync(dbContextSvc, userManagerSvc);
             await dbContextSvc.DisposeAsync();
         }
 
@@ -71,118 +72,113 @@ namespace TourFlow.Data
             }
         }
 
-        public static async Task SeedDefaultTravelAgentsAsync(ApplicationDbContext context)
-        {
-            if (await context.TravelAgents.AnyAsync())
-            {
-                return;
-            }
-
-            try
-            {
-                IList<TravelAgent> defaultAgents =
-                [
-                    new TravelAgent() { Name = "Sky Travels" },
-                    new TravelAgent() { Name = "Imperial Tour & Travels" }
-                ];
-
-                var dbTravelAgents = context.TravelAgents.Select(t => t.Name).ToList();
-
-                await context.TravelAgents.AddRangeAsync(defaultAgents.Where(a => !dbTravelAgents.Contains(a.Name)));
-                await context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("*************  ERROR  *************");
-                Console.WriteLine("Error Seeding Travel Agents");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("***********************************");
-                throw;
-            }
-        }
-
         public static async Task SeedDefaultUsersAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context, string defaultPassword)
         {
-            await SeedInternalUsers(userManager, defaultPassword);
-            await SeedTravelAgentUsers(userManager, context, defaultPassword);
-        }
-
-        private static async Task SeedInternalUsers(UserManager<ApplicationUser> userManager, string defaultPassword)
-        {
-            var usersToSeed = new List<(string Email, string FirstName, string LastName, Role Role)>
+            var defaultUser = new ApplicationUser
             {
-                ("admin@tourflow.com", "System", "Administrator", Role.Admin),
-                ("manager@tourflow.com", "Sarah", "Chen", Role.Manager),
-                ("sales1@tourflow.com", "James", "Rodriguez", Role.Sales),
-                ("sales2@tourflow.com", "Priya", "Patel", Role.Sales)
+                UserName = "admin.tourflow@mailinator.com",
+                Email = "admin.tourflow@mailinator.com",
+                FirstName = "System",
+                LastName = "Administrator",
+                EmailConfirmed = true
             };
 
-            foreach (var (email, first, last, role) in usersToSeed)
+            var user = await userManager.FindByEmailAsync(defaultUser.Email);
+
+            if (user == null)
             {
-                if (await userManager.FindByEmailAsync(email) == null)
-                {
-                    var user = new ApplicationUser
-                    {
-                        UserName = email,
-                        Email = email,
-                        FirstName = first,
-                        LastName = last,
-                        EmailConfirmed = true
-                    };
+                await userManager.CreateAsync(defaultUser, defaultPassword);
+                await userManager.AddToRoleAsync(defaultUser, nameof(Role.Admin));
+            }
 
-                    var result = await userManager.CreateAsync(user, defaultPassword);
+            defaultUser = new ApplicationUser
+            {
+                UserName = "manager.tourflow@mailinator.com",
+                Email = "manager.tourflow@mailinator.com",
+                FirstName = "Sarah",
+                LastName = "Chen",
+                EmailConfirmed = true
+            };
 
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(user, role.ToString());
-                    }
-                }
+            user = await userManager.FindByEmailAsync(defaultUser.Email);
+
+            if (user == null)
+            {
+                await userManager.CreateAsync(defaultUser, defaultPassword);
+                await userManager.AddToRoleAsync(defaultUser, nameof(Role.Manager));
+            }
+
+            defaultUser = new ApplicationUser
+            {
+                UserName = "sales1.tourflow@mailinator.com",
+                Email = "sales1.tourflow@mailinator.com",
+                FirstName = "James",
+                LastName = "Rodriguez",
+                EmailConfirmed = true
+            };
+
+            user = await userManager.FindByEmailAsync(defaultUser.Email);
+
+            if (user == null)
+            {
+                await userManager.CreateAsync(defaultUser, defaultPassword);
+                await userManager.AddToRoleAsync(defaultUser, nameof(Role.Manager));
+            }
+
+            defaultUser = new ApplicationUser
+            {
+                UserName = "sales2.tourflow@mailinator.com",
+                Email = "sales2.tourflow@mailinator.com",
+                FirstName = "Priya",
+                LastName = "Patel",
+                EmailConfirmed = true
+            };
+
+            user = await userManager.FindByEmailAsync(defaultUser.Email);
+
+            if (user == null)
+            {
+                await userManager.CreateAsync(defaultUser, defaultPassword);
+                await userManager.AddToRoleAsync(defaultUser, nameof(Role.Manager));
             }
         }
 
-        private static async Task SeedTravelAgentUsers(UserManager<ApplicationUser> userManager, ApplicationDbContext context, string defaultPassword)
+        private static async Task SeedSampleEnquiriesAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            var skyTravels = await context.TravelAgents.FirstOrDefaultAsync(t => t.Name == "Sky Travels");
-            var imperial = await context.TravelAgents.FirstOrDefaultAsync(t => t.Name == "Imperial Tour & Travels");
+            if (await context.Enquiries.AnyAsync()) return;
 
-            if (skyTravels == null || imperial == null) return;
+            var sales1 = await userManager.FindByEmailAsync("sales1.tourflow@mailinator.com");
 
-            var agentUsers = new List<(string Email, string FirstName, string LastName, int TravelAgentId)>
+            var enquiries = new List<Enquiry>
             {
-                ("agent@skytravels.com", "Emma", "Thompson", skyTravels.Id),
-                ("lead@skytravels.com", "Marcus", "Okoro", skyTravels.Id),
-                ("agent@imperial.com", "Sophie", " Laurent", imperial.Id)
+                new Enquiry
+                {
+                    TravelAgentName = "Sky Travels",
+                    GroupSize = 42,
+                    StartDate = DateTimeOffset.UtcNow.AddMonths(2),
+                    EndDate = DateTimeOffset.UtcNow.AddMonths(2).AddDays(7),
+                    Destination = "Portugal - Lisbon & Douro Valley",
+                    Budget = "£28,000 - £34,000",
+                    RequestedServices = "4* hotels, private coach, wine tasting, city tours",
+                    Status = EnquiryStatus.New,
+                    Created = DateTimeOffset.UtcNow.AddDays(-3)
+                },
+                new Enquiry
+                {
+                    TravelAgentName = "Imperial Tours & Travels",
+                    GroupSize = 25,
+                    StartDate = DateTimeOffset.UtcNow.AddMonths(1).AddDays(10),
+                    EndDate = DateTimeOffset.UtcNow.AddMonths(1).AddDays(18),
+                    Destination = "Spain - Andalusia (Seville, Cordoba, Granada)",
+                    Budget = "£24,500",
+                    RequestedServices = "Luxury coach, flamenco experience, guided tours",
+                    Status = EnquiryStatus.Quoted,
+                    AssignedToId = sales1?.Id,
+                    Created = DateTimeOffset.UtcNow.AddDays(-12)
+                }
             };
 
-            foreach (var (email, first, last, agentId) in agentUsers)
-            {
-                if (await userManager.FindByEmailAsync(email) == null)
-                {
-                    var user = new ApplicationUser
-                    {
-                        UserName = email,
-                        Email = email,
-                        FirstName = first,
-                        LastName = last,
-                        EmailConfirmed = true
-                    };
-
-                    var result = await userManager.CreateAsync(user, defaultPassword);
-
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(user, nameof(Role.Agent));
-
-                        // Link user to TravelAgent
-                        var travelAgent = await context.TravelAgents
-                            .Include(t => t.Members)
-                            .FirstAsync(t => t.Id == agentId);
-
-                        travelAgent.Members.Add(user);
-                    }
-                }
-            }
-
+            await context.Enquiries.AddRangeAsync(enquiries);
             await context.SaveChangesAsync();
         }
     }

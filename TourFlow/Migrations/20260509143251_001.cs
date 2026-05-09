@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TourFlow.Migrations
 {
     /// <inheritdoc />
-    public partial class _001initial : Migration
+    public partial class _001 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -74,25 +74,6 @@ namespace TourFlow.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TravelAgents",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    ImageId = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TravelAgents", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TravelAgents_Uploads_ImageId",
-                        column: x => x.ImageId,
-                        principalTable: "Uploads",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
@@ -100,7 +81,6 @@ namespace TourFlow.Migrations
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     ProfilePictureId = table.Column<Guid>(type: "uuid", nullable: true),
-                    TravelAgentId = table.Column<int>(type: "integer", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -123,11 +103,6 @@ namespace TourFlow.Migrations
                         name: "FK_AspNetUsers_Images_ProfilePictureId",
                         column: x => x.ProfilePictureId,
                         principalTable: "Images",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_TravelAgents_TravelAgentId",
-                        column: x => x.TravelAgentId,
-                        principalTable: "TravelAgents",
                         principalColumn: "Id");
                 });
 
@@ -241,6 +216,7 @@ namespace TourFlow.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TravelAgentName = table.Column<string>(type: "text", nullable: true),
                     GroupSize = table.Column<int>(type: "integer", nullable: false),
                     StartDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     EndDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -252,8 +228,8 @@ namespace TourFlow.Migrations
                     Updated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     CreatedById = table.Column<string>(type: "text", nullable: true),
-                    TravelAgentId = table.Column<int>(type: "integer", nullable: false),
-                    AssignedToId = table.Column<string>(type: "text", nullable: true)
+                    AssignedToId = table.Column<string>(type: "text", nullable: true),
+                    BookingId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -263,12 +239,6 @@ namespace TourFlow.Migrations
                         column: x => x.AssignedToId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Enquiries_TravelAgents_TravelAgentId",
-                        column: x => x.TravelAgentId,
-                        principalTable: "TravelAgents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -344,11 +314,6 @@ namespace TourFlow.Migrations
                 column: "ProfilePictureId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_TravelAgentId",
-                table: "AspNetUsers",
-                column: "TravelAgentId");
-
-            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -362,22 +327,13 @@ namespace TourFlow.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_EnquiryId",
                 table: "Bookings",
-                column: "EnquiryId");
+                column: "EnquiryId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Enquiries_AssignedToId",
                 table: "Enquiries",
                 column: "AssignedToId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Enquiries_TravelAgentId",
-                table: "Enquiries",
-                column: "TravelAgentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TravelAgents_ImageId",
-                table: "TravelAgents",
-                column: "ImageId");
         }
 
         /// <inheritdoc />
@@ -405,6 +361,9 @@ namespace TourFlow.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
+                name: "Uploads");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -415,12 +374,6 @@ namespace TourFlow.Migrations
 
             migrationBuilder.DropTable(
                 name: "Images");
-
-            migrationBuilder.DropTable(
-                name: "TravelAgents");
-
-            migrationBuilder.DropTable(
-                name: "Uploads");
         }
     }
 }

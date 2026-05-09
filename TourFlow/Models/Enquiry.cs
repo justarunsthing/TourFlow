@@ -1,54 +1,30 @@
 ﻿using TourFlow.Data;
 using TourFlow.Client.Enums;
 using TourFlow.Client.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace TourFlow.Models
 {
     public class Enquiry
     {
-        // Fields
-        private DateTimeOffset _created;
-        private DateTimeOffset? _updated;
-        private DateTimeOffset _startDate;
-        private DateTimeOffset _endDate;
-
         public int Id { get; set; }
+        public string? TravelAgentName { get; set; }
         public int GroupSize { get; set; }
-        public DateTimeOffset StartDate
-        {
-            get => _startDate;
-            set => _startDate = value.ToUniversalTime();
-        }
-
-        public DateTimeOffset EndDate
-        {
-            get => _endDate;
-            set => _endDate = value.ToUniversalTime();
-        }
+        public DateTimeOffset StartDate { get; set; }
+        public DateTimeOffset EndDate { get; set; }
         public string? Destination { get; set; }
         public string? Budget { get; set; }
         public string? RequestedServices { get; set; }
         public string? AdditionalNotes { get; set; }
-        public DateTimeOffset Created
-        {
-            get => _created;
-            set => _created = value.ToUniversalTime();
-        }
-        public DateTimeOffset? Updated
-        {
-            get => _updated;
-            set => _updated = value?.ToUniversalTime();
-        }
+        public DateTimeOffset Created { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? Updated { get; set; }
         public EnquiryStatus Status { get; set; } = EnquiryStatus.New;
         public string? CreatedById { get; set; }
 
         // Navigation properties
-        [Required]
-        public int TravelAgentId { get; set; }
-        public virtual TravelAgent TravelAgent { get; set; } = null!;
         public string? AssignedToId { get; set; }
         public virtual ApplicationUser? AssignedTo { get; set; }
+        public int? BookingId { get; set; }
+        public virtual Booking? Booking { get; set; }
     }
 
     public static class EnquiryExtensions
@@ -68,7 +44,8 @@ namespace TourFlow.Models
                 Created = e.Created,
                 Updated = e.Updated,
                 Status = e.Status,
-                AssignedTo = e.AssignedTo?.ToDTO()
+                AssignedTo = e.AssignedTo?.ToDTO(),
+                Booking = e.Booking?.ToDTO()
             };
         }
     }

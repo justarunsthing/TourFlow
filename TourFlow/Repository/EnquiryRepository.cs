@@ -12,7 +12,6 @@ namespace TourFlow.Repository
             await using ApplicationDbContext context = contextFactory.CreateDbContext();
 
             return await context.Enquiries
-                .Include(e => e.TravelAgent)
                 .Include(e => e.AssignedTo)
                 .ToListAsync();
         }
