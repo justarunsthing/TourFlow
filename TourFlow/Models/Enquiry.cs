@@ -4,19 +4,41 @@ using TourFlow.Client.Models;
 
 namespace TourFlow.Models
 {
-    public class TourEnquiry
+    public class Enquiry
     {
+        // Fields
+        private DateTimeOffset _created;
+        private DateTimeOffset? _updated;
+        private DateTimeOffset _startDate;
+        private DateTimeOffset _endDate;
+
         public int Id { get; set; }
-        public string? EnquiryNumber { get; set; } 
         public int GroupSize { get; set; }
-        public DateTimeOffset StartDate { get; set; }
-        public DateTimeOffset EndDate { get; set; }
+        public DateTimeOffset StartDate
+        {
+            get => _startDate;
+            set => _startDate = value.ToUniversalTime();
+        }
+
+        public DateTimeOffset EndDate
+        {
+            get => _endDate;
+            set => _endDate = value.ToUniversalTime();
+        }
         public string? Destination { get; set; }
         public string? Budget { get; set; }
         public string? RequestedServices { get; set; }
         public string? AdditionalNotes { get; set; }
-        public DateTimeOffset Created { get; set; }
-        public DateTimeOffset? Updated { get; set; }
+        public DateTimeOffset Created
+        {
+            get => _created;
+            set => _created = value.ToUniversalTime();
+        }
+        public DateTimeOffset? Updated
+        {
+            get => _updated;
+            set => _updated = value?.ToUniversalTime();
+        }
         public EnquiryStatus Status { get; set; } = EnquiryStatus.New;
 
         // Navigation properties
@@ -24,18 +46,16 @@ namespace TourFlow.Models
         public virtual TravelAgent TravelAgent { get; set; } = null!;
         public string? AssignedToId { get; set; }
         public virtual ApplicationUser? AssignedTo { get; set; }
-        public virtual Quotation? Quotation { get; set; }
         public virtual Booking? Booking { get; set; }
     }
 
-    public static class TourEnquiryExtensions
+    public static class EnquiryExtensions
     {
-        public static TourEnquiryDTO ToDTO(this TourEnquiry e)
+        public static EnquiryDTO ToDTO(this Enquiry e)
         {
-            return new TourEnquiryDTO
+            return new EnquiryDTO
             {
                 Id = e.Id,
-                EnquiryNumber = e.EnquiryNumber ?? string.Empty,
                 GroupSize = e.GroupSize,
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,
@@ -46,14 +66,8 @@ namespace TourFlow.Models
                 Created = e.Created,
                 Updated = e.Updated,
                 Status = e.Status,
-                TravelAgentId = e.TravelAgentId,
-                TravelAgentCompanyName = e.TravelAgent?.CompanyName ?? string.Empty,
-                AssignedToId = e.AssignedToId,
-                AssignedToFullName = e.AssignedTo != null ? $"{e.AssignedTo.FirstName} {e.AssignedTo.LastName}" : null,
-                QuotationId = e.Quotation?.Id,
-                QuotationNumber = e.Quotation?.QuotationNumber,
-                BookingId = e.Booking?.Id,
-                BookingNumber = e.Booking?.BookingNumber
+                Booking = e.Booking?.ToDTO(),
+                AssignedTo = e.AssignedTo?.ToDTO()
             };
         }
     }

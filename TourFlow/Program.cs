@@ -55,10 +55,10 @@ builder.Services.AddScoped<IEnquiryDTOService, EnquiryDTOService>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    await DataUtility.ManageDataAsync(scope.ServiceProvider);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    await DataUtility.ManageDataAsync(scope.ServiceProvider);
+//}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

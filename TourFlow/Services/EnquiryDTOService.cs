@@ -7,10 +7,10 @@ namespace TourFlow.Services
 {
     public class EnquiryDTOService(IEnquiryRepository repository) : IEnquiryDTOService
     {
-        public async Task<IEnumerable<TourEnquiryDTO>> GetAllEnquiriesAsync()
+        public async Task<IEnumerable<EnquiryDTO>> GetAllEnquiriesAsync()
         {
-            IEnumerable<TourEnquiry> tourEnquiries = await repository.GetAllEnquiriesAsync();
-            IEnumerable<TourEnquiryDTO> tourEnquiryDTOs = tourEnquiries.Select(e => e.ToDTO());
+            IEnumerable<Enquiry> tourEnquiries = await repository.GetAllEnquiriesAsync();
+            IEnumerable<EnquiryDTO> tourEnquiryDTOs = tourEnquiries.Select(e => e.ToDTO());
 
             return tourEnquiryDTOs;
         }

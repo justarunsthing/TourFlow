@@ -4,6 +4,6 @@ namespace TourFlow.Interfaces
 {
     public interface IEnquiryRepository
     {
-        Task<IEnumerable<TourEnquiry>> GetAllEnquiriesAsync();
+        Task<IEnumerable<Enquiry>> GetAllEnquiriesAsync();
     }
 }

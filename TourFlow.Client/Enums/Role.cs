@@ -11,5 +11,8 @@ namespace TourFlow.Client.Enums
 
         [Display(Name = "Sales Executive")]
         SalesExecutive,
+
+        [Display(Name = "Travel Agent")]
+        TravelAgent
     }
 }

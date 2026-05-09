@@ -1,17 +1,19 @@
-﻿using TourFlow.Client.Models;
+﻿using Bogus.DataSets;
+using TourFlow.Client.Models;
+using TourFlow.Data;
 
 namespace TourFlow.Models
 {
     public class TravelAgent
     {
         public int Id { get; set; }
-        public string? CompanyName { get; set; }
-        public string? ContactPerson { get; set; }
-        public string? Phone { get; set; }
-        public string Email { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public Guid? ImageId { get; set; } // FK
 
         // Navigation properties
-        public virtual ICollection<TourEnquiry> TourEnquiries { get; set; } = [];
+        public virtual FileUpload? Image { get; set; }
+        public virtual ICollection<Enquiry> TourEnquiries { get; set; } = [];
+        public virtual ICollection<ApplicationUser> Members { get; set; } = [];
     }
 
     public static class TravelAgentExtensions
@@ -21,10 +23,12 @@ namespace TourFlow.Models
             return new TravelAgentDTO
             {
                 Id = agent.Id,
-                CompanyName = agent.CompanyName ?? string.Empty,
-                ContactPerson = agent.ContactPerson ?? string.Empty,
-                Phone = agent.Phone ?? string.Empty,
-                Email = agent.Email
+                Name = agent.Name,
+                ImageUrl = agent.ImageId.HasValue
+                    ? $"uploads/{agent.ImageId}"
+                    : $"https://api.dicebear.com/9.x/glass/svg?seed={agent.Name}",
+                Enquiries = [..agent.TourEnquiries.Select(e => e.ToDTO())],
+                Members = [..agent.Members.Select(e => e.ToDTO())]
             };
         }
     }

@@ -18,7 +18,7 @@ namespace TourFlow.Data
         public virtual ImageUpload? ProfilePicture { get; set; }
 
         // Navigation properties
-        public virtual ICollection<TourEnquiry> AssignedEnquiries { get; set; } = [];
+        public virtual ICollection<Enquiry> AssignedEnquiries { get; set; } = [];
     }
 
     public static class ApplicationUserExtensions

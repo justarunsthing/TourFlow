@@ -1,0 +1,40 @@
+﻿@page "/enquiries"
+@attribute [Authorize]
+@inject IEnquiryDTOService EnquiryService
+
+<PageTitle>All Enquiries | The Bug Tracker</PageTitle>
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container">
+
+    @if (tourEnquiries.Count() > 0)
+    {
+        <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
+            @foreach (var enquiry in tourEnquiries)
+            {
+
+            }
+        </div>
+    }
+    else
+    {
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <MudText Color="Color.Tertiary" Typo="Typo.button">
+                No Enquiries Found
+            </MudText>
+        </div>
+    }
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private IEnumerable<EnquiryDTO> tourEnquiries = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserInfo? userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        tourEnquiries = await EnquiryService.GetAllEnquiriesAsync();
+    }
+}

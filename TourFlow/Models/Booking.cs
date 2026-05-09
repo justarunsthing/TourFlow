@@ -1,22 +1,33 @@
 ﻿using TourFlow.Client.Enums;
 using TourFlow.Client.Models;
+using TourFlow.Data;
 
 namespace TourFlow.Models
 {
     public class Booking
     {
+        private DateTimeOffset _created;
+        private DateTimeOffset? _updated;
         public int Id { get; set; }
-        public string? BookingNumber { get; set; }
-        public int TourEnquiryId { get; set; }
-        public virtual TourEnquiry TourEnquiry { get; set; } = null!;
-        public int? QuotationId { get; set; }
-        public virtual Quotation? Quotation { get; set; }
+        public string? Description { get; set; }
         public decimal TotalAmount { get; set; }
         public string Currency { get; set; } = "GBP";
-        public BookingStatus Status { get; set; } = BookingStatus.New;
-        public DateTimeOffset BookingDate { get; set; } = DateTimeOffset.UtcNow;
-        public DateTimeOffset? ConfirmedAt { get; set; }
-        public DateTimeOffset? Updated { get; set; }
+        public BookingStatus Status { get; set; } = BookingStatus.InProgress;
+        public DateTimeOffset Created
+        {
+            get => _created;
+            set => _created = value.ToUniversalTime();
+        }
+
+        public DateTimeOffset? Updated
+        {
+            get => _updated;
+            set => _updated = value?.ToUniversalTime();
+        }
+        public int EnquiryId { get; set; }
+        public virtual Enquiry? Enquiry { get; set; }
+        public string? CreatorUserId { get; set; }
+        public virtual ApplicationUser? CreatorUser { get; set; }
     }
 
     public static class BookingExtensions
@@ -26,15 +37,16 @@ namespace TourFlow.Models
             return new BookingDTO
             {
                 Id = b.Id,
-                BookingNumber = b.BookingNumber ?? string.Empty,
-                TourEnquiryId = b.TourEnquiryId,
+                Description = b.Description,
                 TotalAmount = b.TotalAmount,
                 Currency = b.Currency,
                 Status = b.Status,
-                BookingDate = b.BookingDate,
-                ConfirmedAt = b.ConfirmedAt,
-                EnquiryNumber = b.TourEnquiry?.EnquiryNumber,
-                QuotationNumber = b.Quotation?.QuotationNumber
+                Created = b.Created,
+                Updated = b.Updated,
+                EnquiryId = b.EnquiryId,
+                Enquiry = b.Enquiry?.ToDTO(),
+                CreatorUserId = b.CreatorUserId,
+                CreatorUser = b.CreatorUser?.ToDTO()
             };
         }
     }

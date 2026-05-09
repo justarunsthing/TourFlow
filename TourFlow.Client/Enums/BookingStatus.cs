@@ -1,11 +1,12 @@
-﻿namespace TourFlow.Client.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TourFlow.Client.Enums
 {
     public enum BookingStatus
     {
-        New,
+        [Display(Name = "In Progress")]
         InProgress,
         Confirmed,
-        Cancelled,
-        Completed
+        Cancelled
     }
 }

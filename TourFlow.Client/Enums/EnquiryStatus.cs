@@ -3,10 +3,8 @@
     public enum EnquiryStatus
     {
         New,
-        InProgress,
         Quoted,
         Converted,
-        Rejected,
-        Closed
+        Rejected
     }
 }
