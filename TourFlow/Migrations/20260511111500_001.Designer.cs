@@ -12,7 +12,7 @@ using TourFlow.Data;
 namespace TourFlow.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260511095351_001")]
+    [Migration("20260511111500_001")]
     partial class _001
     {
         /// <inheritdoc />
@@ -354,7 +354,7 @@ namespace TourFlow.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TravelAgentId")
+                    b.Property<int>("TravelAgentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("TravelAgentName")
@@ -571,11 +571,15 @@ namespace TourFlow.Migrations
                         .WithMany("AssignedEnquiries")
                         .HasForeignKey("AssignedToId");
 
-                    b.HasOne("TourFlow.Models.TravelAgent", null)
+                    b.HasOne("TourFlow.Models.TravelAgent", "TravelAgent")
                         .WithMany("Enquiries")
-                        .HasForeignKey("TravelAgentId");
+                        .HasForeignKey("TravelAgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssignedTo");
+
+                    b.Navigation("TravelAgent");
                 });
 
             modelBuilder.Entity("TourFlow.Data.ApplicationUser", b =>

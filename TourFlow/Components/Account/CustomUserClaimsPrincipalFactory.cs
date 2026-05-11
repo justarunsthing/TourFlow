@@ -23,7 +23,8 @@ namespace TourFlow.Components.Account
             [
                 new Claim(nameof(UserInfo.FirstName), user.FirstName!),
                 new Claim(nameof(UserInfo.LastName), user.LastName!),
-                new Claim(nameof(UserInfo.ProfilePictureUrl), profilePictureUrl)
+                new Claim(nameof(UserInfo.ProfilePictureUrl), profilePictureUrl),
+                new Claim(nameof(UserInfo.TravelAgentId), user.TravelAgentId.ToString()!)
             ];
 
             identity.AddClaims(customClaims);

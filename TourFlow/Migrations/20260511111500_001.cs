@@ -248,9 +248,9 @@ namespace TourFlow.Migrations
                     Updated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     CreatedById = table.Column<string>(type: "text", nullable: true),
+                    TravelAgentId = table.Column<int>(type: "integer", nullable: false),
                     AssignedToId = table.Column<string>(type: "text", nullable: true),
-                    BookingId = table.Column<int>(type: "integer", nullable: true),
-                    TravelAgentId = table.Column<int>(type: "integer", nullable: true)
+                    BookingId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -264,7 +264,8 @@ namespace TourFlow.Migrations
                         name: "FK_Enquiries_TravelAgents_TravelAgentId",
                         column: x => x.TravelAgentId,
                         principalTable: "TravelAgents",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

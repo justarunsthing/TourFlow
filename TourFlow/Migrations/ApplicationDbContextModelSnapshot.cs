@@ -351,7 +351,7 @@ namespace TourFlow.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("TravelAgentId")
+                    b.Property<int>("TravelAgentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("TravelAgentName")
@@ -568,11 +568,15 @@ namespace TourFlow.Migrations
                         .WithMany("AssignedEnquiries")
                         .HasForeignKey("AssignedToId");
 
-                    b.HasOne("TourFlow.Models.TravelAgent", null)
+                    b.HasOne("TourFlow.Models.TravelAgent", "TravelAgent")
                         .WithMany("Enquiries")
-                        .HasForeignKey("TravelAgentId");
+                        .HasForeignKey("TravelAgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AssignedTo");
+
+                    b.Navigation("TravelAgent");
                 });
 
             modelBuilder.Entity("TourFlow.Data.ApplicationUser", b =>
