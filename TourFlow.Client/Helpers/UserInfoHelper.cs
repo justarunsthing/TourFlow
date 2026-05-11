@@ -37,6 +37,7 @@ namespace TourFlow.Client.Helpers
                 var email = user.FindFirst(ClaimTypes.Email)!.Value;
                 var firstName = user.FindFirst(nameof(UserInfo.FirstName))!.Value;
                 var lastName = user.FindFirst(nameof(UserInfo.LastName))!.Value;
+                var travelAgentId = user.FindFirst(nameof(UserInfo.TravelAgentId))?.Value;
                 var profilePictureUrl = user.FindFirst(nameof(UserInfo.ProfilePictureUrl))!.Value;
                 var roles = user.FindAll(ClaimTypes.Role).Select(r => r.Value);
 
@@ -47,6 +48,7 @@ namespace TourFlow.Client.Helpers
                     FirstName = firstName,
                     LastName = lastName,
                     ProfilePictureUrl = profilePictureUrl,
+                    TravelAgentId = string.IsNullOrEmpty(travelAgentId) ? 0 : int.Parse(travelAgentId),
                     Roles = [.. roles]
                 };
             }

@@ -21,6 +21,8 @@ namespace TourFlow.Models
         public string? CreatedById { get; set; }
 
         // Navigation properties
+        public int TravelAgentId { get; set; }
+        public virtual TravelAgent? TravelAgent { get; set; }
         public string? AssignedToId { get; set; }
         public virtual ApplicationUser? AssignedTo { get; set; }
         public int? BookingId { get; set; }

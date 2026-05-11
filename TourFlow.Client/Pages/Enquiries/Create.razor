@@ -1,5 +1,6 @@
 ﻿@page "/enquiries/create"
 @attribute [Authorize(Roles = $"{nameof(Role.TravelAgent)}")]
+@inject IEnquiryDTOService EnquiryService
 @inject ISnackbar Snackbar
 @inject NavigationManager Nav
 
@@ -97,14 +98,15 @@
         new BreadcrumbItem("New Enquiry", href: null, disabled: true)
     };
 
-    
+
     private async Task HandleSubmit()
     {
         userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthState);
 
         try
         {
-            // Snackbar.Add($"Project '{project.Name}' was created successfully!", Severity.Success);
+            enquiry = await EnquiryService.CreateEnquiryAsync(enquiry, userInfo!);
+            Snackbar.Add("Enquiry was created successfully!", Severity.Success);
         }
         catch (Exception ex)
         {
@@ -114,6 +116,6 @@
             return;
         }
 
-        // Nav.NavigateTo($"/projects/{project.Id}");
+        Nav.NavigateTo($"/enquiries");
     }
 }

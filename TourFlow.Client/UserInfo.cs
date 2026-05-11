@@ -9,6 +9,7 @@
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public required string ProfilePictureUrl { get; set; }
+        public int TravelAgentId { get; set; }
         public required string[] Roles { get; set; }
     }
 }

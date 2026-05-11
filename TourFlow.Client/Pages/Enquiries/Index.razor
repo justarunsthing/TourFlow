@@ -3,7 +3,7 @@
 @attribute [Authorize]
 @inject IEnquiryDTOService EnquiryService
 
-<PageTitle>All Enquiries | The Bug Tracker</PageTitle>
+<PageTitle>All Enquiries | Tour Flow</PageTitle>
 
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container">
@@ -13,9 +13,9 @@
         <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
             @foreach (var enquiry in enquiries)
             {
-                <div class="col">
+@*                 <div class="col">
                     <EnquiryCard Enquiry="enquiry"/>
-                </div>
+                </div> *@
             }
         </div>
     }
