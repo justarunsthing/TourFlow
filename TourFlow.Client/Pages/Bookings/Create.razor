@@ -71,6 +71,21 @@
 
                 <MudGrid Spacing="4">
                     <MudItem xs="12" md="8">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Tertiary"
+                                   Size="Size.Small"
+                                   OnClick="GenerateItineraryWithAI"
+                                   Disabled="@isGenerating">
+                            @if (isGenerating)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                <text>Generating...</text>
+                            }
+                            else
+                            {
+                                <text>✦ AI Generate Itinerary</text>
+                            }
+                        </MudButton>
                         <MudTextField T="string" 
                                       @bind-Value="booking.Description"
                                       Label="Itinerary Description / Summary"
@@ -162,6 +177,7 @@
     private BookingDTO booking = new();
     private IBrowserFile? selectedFile;
     private bool isSubmitting = false;
+    private bool isGenerating = false;
     private const long MaxFileSize = 15 * 1024 * 1024;
 
     private static readonly List<BreadcrumbItem> breadcrumbs = new()
@@ -219,6 +235,35 @@
         finally
         {
             isSubmitting = false;
+        }
+    }
+
+    private async Task GenerateItineraryWithAI()
+    {
+        isGenerating = true;
+
+        try
+        {
+            var generatedDescription = await BookingService.GenerateItineraryWithAIAsync(enquiry);
+            
+            if (!string.IsNullOrWhiteSpace(generatedDescription))
+            {
+                booking.Description = generatedDescription;
+                Snackbar.Add("AI generated itinerary loaded successfully!", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to generate itinerary", Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error generating itinerary with AI", Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            isGenerating = false;
         }
     }
 }

@@ -5,6 +5,7 @@ namespace TourFlow.Client.Interfaces
 {
     public interface IBookingDTOService
     {
+        Task<string> GenerateItineraryWithAIAsync(EnquiryDTO enquiry);
         Task<BookingDTO?> GetBookingByIdAsync(int bookingId);
         Task<IEnumerable<BookingDTO>> GetAllBookingsAsync(UserInfo user);
         Task<BookingDTO> CreateBookingAsync(BookingDTO dto, UserInfo user, IBrowserFile file);
