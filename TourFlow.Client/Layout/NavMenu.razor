@@ -12,31 +12,23 @@
     </AuthorizeView>
 
     <AuthorizeView Roles="@($"{Role.TravelAgent}")">
-        <MudNavGroup Title="Home" Expanded="true">
-            <MudNavLink Href="/enquiries" Icon="@Icons.Material.Filled.Dashboard">
-                Dashboard
+        <MudNavGroup Title="Enquiries" Expanded>
+            <MudNavLink Href="/enquiries" Icon="@Icons.Material.Filled.FolderShared">
+                My Enquiries
+            </MudNavLink>
+            <MudNavLink Href="/bookings" Icon="@Icons.Material.Filled.FolderShared">
+                My Bookings
             </MudNavLink>
         </MudNavGroup>
     </AuthorizeView>
 
-    <AuthorizeView>
+    <AuthorizeView Roles="@($"{Role.Admin}, {Role.Manager}, {Role.Sales}")">
         <MudNavGroup Title="Enquiries" Expanded>
-            <MudNavLink Href="/enquiries" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
+            <MudNavLink Href="/enquiries" Icon="@Icons.Material.Filled.FolderShared">
                 All Enquiries
             </MudNavLink>
-            <MudNavLink Href="/enquiries/assigned" Icon="@Icons.Material.Filled.FolderShared">
-                My Enquiries
-            </MudNavLink>
-        </MudNavGroup>
-        <MudNavGroup Title="Bookings" Expanded>
-            <MudNavLink Href="/booking" Icon="@Icons.Material.Filled.Assignment">
+            <MudNavLink Href="/bookings" Icon="@Icons.Material.Filled.FolderShared">
                 All Bookings
-            </MudNavLink>
-            <MudNavLink Href="/booking/assigned" Icon="@Icons.Material.Filled.AssignmentInd">
-                My Bookings
-            </MudNavLink>
-            <MudNavLink Href="/booking/create" Icon="@Icons.Material.Filled.AssignmentLate">
-                Create Booking
             </MudNavLink>
         </MudNavGroup>
     </AuthorizeView>

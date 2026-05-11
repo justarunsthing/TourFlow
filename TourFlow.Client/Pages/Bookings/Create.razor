@@ -1,0 +1,233 @@
+﻿@page "/bookings/create/{EnquiryId:int}"
+@attribute [Authorize(Roles = $"{nameof(Role.Admin)},{nameof(Role.Manager)},{nameof(Role.Sales)}")]
+
+@inject IBookingDTOService BookingService
+@inject IEnquiryDTOService EnquiryService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Create Booking - Vosaio</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
+    <MudBreadcrumbs Items="breadcrumbs" />
+
+    @if (enquiry == null)
+    {
+        <MudProgressCircular Indeterminate Color="Color.Primary" />
+    }
+    else
+    {
+        <!-- Enquiry Summary -->
+        <MudPaper Class="pa-6 mb-6">
+            <MudText Typo="Typo.h5" GutterBottom="true">Create Booking</MudText>
+            <MudText Typo="Typo.subtitle1" Class="mb-4">
+                Enquiry Id: <strong>@enquiry.Id</strong>
+            </MudText>
+
+            <MudGrid Spacing="4">
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Destination</MudText>
+                    <MudText Typo="Typo.body1">@enquiry.Destination</MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Group Size</MudText>
+                    <MudText Typo="Typo.body1">@enquiry.GroupSize people</MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Dates</MudText>
+                    <MudText Typo="Typo.body1">
+                        @enquiry.StartDate?.ToString("dd MMM yyyy") — @enquiry.EndDate?.ToString("dd MMM yyyy")
+                    </MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Budget</MudText>
+                    <MudText Typo="Typo.body1">@enquiry.Budget</MudText>
+                </MudItem>
+            </MudGrid>
+
+            @if (!string.IsNullOrWhiteSpace(enquiry.RequestedServices))
+            {
+                <div class="mt-4">
+                    <MudText Typo="Typo.caption">Requested Services</MudText>
+                    <MudText Typo="Typo.body2">@enquiry.RequestedServices</MudText>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(enquiry.AdditionalNotes))
+            {
+                <div class="mt-4">
+                    <MudText Typo="Typo.caption">Additional Notes</MudText>
+                    <MudText Typo="Typo.body2">@enquiry.AdditionalNotes</MudText>
+                </div>
+            }
+        </MudPaper>
+
+        <!-- Booking Form -->
+        <MudPaper Class="pa-6">
+            <MudText Typo="Typo.h6" Class="mb-4">Booking Details</MudText>
+
+            <EditForm Model="booking" OnValidSubmit="HandleSubmit" FormName="create-booking">
+                <DataAnnotationsValidator />
+
+                <MudGrid Spacing="4">
+                    <MudItem xs="12" md="8">
+                        <MudTextField T="string" 
+                                      @bind-Value="booking.Description"
+                                      Label="Itinerary Description / Summary"
+                                      Variant="Variant.Outlined" 
+                                      Lines="6" 
+                                      Required="true" />
+                    </MudItem>
+
+                    <MudItem xs="12" md="4">
+                        <MudNumericField T="decimal" 
+                                         @bind-Value="booking.TotalAmount"
+                                         Label="Total Amount" 
+                                         Variant="Variant.Outlined" 
+                                         Required="true"
+                                         Adornment="Adornment.Start" 
+                                         AdornmentText="£" />
+
+                        <MudSelect T="TourProvider" 
+                                   @bind-Value="booking.TourProvider"
+                                   Label="Tour Provider" 
+                                   Variant="Variant.Outlined" 
+                                   Required="true" 
+                                   Class="mt-4">
+                            @foreach (var provider in Enum.GetValues<TourProvider>())
+                            {
+                                if (provider == TourProvider.None) continue;
+                                <MudSelectItem Value="@provider">@provider.GetDisplayName()</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+
+                <!-- Single File Upload -->
+                <div class="mt-6">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Itinerary Attachment</MudText>
+                    <MudText Typo="Typo.caption" Class="mb-3">PDF, DOCX, XLSX, JPG, PNG (Max 15MB)</MudText>
+
+                    <MudFileUpload T="IBrowserFile" 
+                                   FilesChanged="@OnFileChanged"
+                                   Accept=".pdf,.docx,.xlsx,.jpg,.jpeg,.png"
+                                   MaxFileSize="@MaxFileSize"
+                                   HideContent="true">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload">
+                            Upload Itinerary File
+                        </MudButton>
+                    </MudFileUpload>
+
+                    @if (selectedFile != null)
+                    {
+                        <div class="mt-3">
+                            <MudChip T="string" Icon="@Icons.Material.Filled.AttachFile" Color="Color.Info">
+                                @selectedFile.Name (@((selectedFile.Size / 1024).ToString("N0")) KB)
+                            </MudChip>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex gap-3 mt-8">
+                    <MudButton Variant="Variant.Text" 
+                               Href="/enquiries"
+                               StartIcon="@Icons.Material.Filled.ArrowBack">
+                        Back
+                    </MudButton>
+
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Class="ms-auto"
+                               Disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                        }
+                        else
+                        {
+                            <text>Create Booking</text>
+                        }
+                    </MudButton>
+                </div>
+            </EditForm>
+        </MudPaper>
+    }
+</MudContainer>
+
+    @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    UserInfo? userInfo;
+
+    [Parameter]
+    public int EnquiryId { get; set; }
+
+    private EnquiryDTO? enquiry;
+    private BookingDTO booking = new() { Currency = "GBP" };
+    private IBrowserFile? selectedFile;
+    private bool isSubmitting = false;
+    private const long MaxFileSize = 15 * 1024 * 1024;
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Home", "/"),
+        new BreadcrumbItem("Enquiries", "/enquiries"),
+        new BreadcrumbItem("Create Booking", null, disabled: true)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        enquiry = await EnquiryService.GetEnquiryByIdAsync(EnquiryId);
+
+        if (enquiry != null)
+        {
+            booking.EnquiryId = enquiry.Id;
+        }
+        else
+        {
+            Snackbar.Add("Enquiry not found", Severity.Error);
+            Nav.NavigateTo("/enquiries");
+        }
+    }
+
+    private Task OnFileChanged(IBrowserFile? file)
+    {
+        selectedFile = file;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (enquiry == null || isSubmitting)
+        {
+            return;
+        }
+
+        isSubmitting = true;
+        userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthState);
+
+        try
+        {
+            await BookingService.CreateBookingAsync(booking, userInfo!, selectedFile);
+            await EnquiryService.UpdateEnquiryAsync(EnquiryId, userInfo!);
+
+            Snackbar.Add("Booking created successfully!", Severity.Success);
+            Nav.NavigateTo("/enquiries");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Failed to create booking", Severity.Error);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

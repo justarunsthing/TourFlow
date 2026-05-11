@@ -51,8 +51,13 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+// Repository
 builder.Services.AddScoped<IEnquiryRepository, EnquiryRepository>();
+// Services
+
 builder.Services.AddScoped<IEnquiryDTOService, EnquiryDTOService>();
+builder.Services.AddScoped<IBookingDTOService, BookingDTOService>();
 
 // Email Services
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, SendGridService>();

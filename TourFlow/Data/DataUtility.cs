@@ -77,7 +77,7 @@ namespace TourFlow.Data
             var defaultUser = new ApplicationUser
             {
                 UserName = "admin.tourflow@mailinator.com",
-                Email = "punarun@hotmail.com",
+                Email = "admin.tourflow@mailinator.com",
                 FirstName = "System",
                 LastName = "Administrator",
                 EmailConfirmed = true

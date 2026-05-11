@@ -4,7 +4,9 @@ namespace TourFlow.Client.Interfaces
 {
     public interface IEnquiryDTOService
     {
-        Task<IEnumerable<EnquiryDTO>> GetAllEnquiriesAsync();
+        Task<EnquiryDTO?> GetEnquiryByIdAsync(int enquiryId);
+        Task<IEnumerable<EnquiryDTO>> GetAllEnquiriesAsync(UserInfo user);
         Task<EnquiryDTO> CreateEnquiryAsync(EnquiryDTO enquiry, UserInfo user);
+        Task UpdateEnquiryAsync(int enquiryId, UserInfo user);
     }
 }

@@ -5,7 +5,6 @@
 
 <PageTitle>All Enquiries | Tour Flow</PageTitle>
 
-
 <MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container">
 
     @if (enquiries.Count() > 0)
@@ -13,9 +12,9 @@
         <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
             @foreach (var enquiry in enquiries)
             {
-@*                 <div class="col">
+                <div class="col">
                     <EnquiryCard Enquiry="enquiry"/>
-                </div> *@
+                </div>
             }
         </div>
     }
@@ -27,6 +26,10 @@
             </MudText>
         </div>
     }
+
+    <AuthorizeView Roles="@($"{nameof(Role.TravelAgent)}")">
+        <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.Add" Href="enquiries/create" Class="create-enquiry-btn" />
+    </AuthorizeView>
 </MudContainer>
 
 @code {
@@ -38,6 +41,6 @@
     protected override async Task OnInitializedAsync()
     {
         UserInfo? userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
-        enquiries = await EnquiryService.GetAllEnquiriesAsync();
+        enquiries = await EnquiryService.GetAllEnquiriesAsync(userInfo!);
     }
 }

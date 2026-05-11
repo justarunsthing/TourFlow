@@ -13,7 +13,7 @@ namespace TourFlow.Models
         public string? Description { get; set; }
         public decimal TotalAmount { get; set; }
         public string Currency { get; set; } = "GBP";
-        public BookingStatus Status { get; set; } = BookingStatus.InProgress;
+        public BookingStatus Status { get; set; }
         public DateTimeOffset Created
         {
             get => _created;
@@ -25,12 +25,14 @@ namespace TourFlow.Models
             get => _updated;
             set => _updated = value?.ToUniversalTime();
         }
+        public TourProvider TourProvider { get; set; }
 
         [Required]
         public int EnquiryId { get; set; }
         public virtual Enquiry Enquiry { get; set; } = null!;
         public string? CreatedById { get; set; }
         public virtual ApplicationUser? CreatedBy { get; set; }
+        public virtual BookingAttachment? Attachment { get; set; }
     }
 
     public static class BookingExtensions
@@ -48,7 +50,8 @@ namespace TourFlow.Models
                 Updated = b.Updated,
                 EnquiryId = b.EnquiryId,
                 CreatedById = b.CreatedById,
-                CreatedBy = b.CreatedBy?.ToDTO()
+                CreatedBy = b.CreatedBy?.ToDTO(),
+                TourProvider = b.TourProvider
             };
         }
     }

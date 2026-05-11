@@ -1,4 +1,5 @@
-﻿using TourFlow.Client.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using TourFlow.Client.Enums;
 
 namespace TourFlow.Client.Models
 {
@@ -8,9 +9,16 @@ namespace TourFlow.Client.Models
         private DateTimeOffset? _updated;
         public int Id { get; set; }
         public int EnquiryId { get; set; }
+
+        [Required(ErrorMessage = "Please provide a detailed description")]
         public string? Description { get; set; }
+
+        [Required]
         public decimal TotalAmount { get; set; }
         public string Currency { get; set; } = "GBP";
+
+        [Required]
+        public TourProvider TourProvider { get; set; }
         public BookingStatus Status { get; set; }
         public DateTimeOffset Created
         {
@@ -25,5 +33,6 @@ namespace TourFlow.Client.Models
         }
         public string? CreatedById { get; set; }
         public UserDTO? CreatedBy { get; set; }
+        public AttachmentDTO? Attachment { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿@* @inherits MudComponentBase
-
-@if (Enquiry is not null)
+﻿@if (Enquiry is not null)
 {
     <MudCard Elevation="3" Class="h-100 enquiry-card">
         <MudCardHeader>
@@ -18,7 +16,7 @@
                 </div>
 
                 <MudText Typo="Typo.subtitle2" Class="mt-1">
-                    @Enquiry.StartDate.ToString("dd MMM yyyy") - @Enquiry.EndDate.ToString("dd MMM yyyy")
+                    @Enquiry.StartDate?.ToString("dd MMM yyyy") - @Enquiry.EndDate?.ToString("dd MMM yyyy")
                 </MudText>
             </CardHeaderContent>
         </MudCardHeader>
@@ -50,6 +48,32 @@
                 </div>
             }
 
+            @if (!string.IsNullOrWhiteSpace(Enquiry.AdditionalNotes))
+            {
+                <div class="mt-4">
+                    <MudText Typo="Typo.caption" Class="mb-1">Additional Notes</MudText>
+                    <MudText Typo="Typo.body2" Class="line-clamp-2">
+                        @Enquiry.AdditionalNotes
+                    </MudText>
+                </div>
+            }
+
+            @if (Enquiry.Booking != null)
+            {
+                <div class="mt-4 p-3 border rounded">
+                    <MudText Typo="Typo.caption" Color="Color.Success">Booking Created</MudText>
+                    <MudText Typo="Typo.body2" Class="font-weight-medium">
+                        @Enquiry.Booking.Description
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        @Enquiry.Booking.TotalAmount.ToString("C0")
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        @Enquiry.Booking.TourProvider.GetDisplayName()
+                    </MudText>
+                </div>
+            }
+
             @if (Enquiry.AssignedTo is not null)
             {
                 <div class="mt-4 d-flex align-center gap-2">
@@ -65,12 +89,26 @@
         </MudCardContent>
 
         <MudCardActions Class="d-flex justify-end gap-2">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Href="@($"/enquiries/{Enquiry.Id}")"
-                       EndIcon="@Icons.Material.Filled.ArrowForward">
-                View Details
-            </MudButton>
+            @if (Enquiry.Booking != null)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Success"
+                           Href="@($"/bookings/{Enquiry.Booking.Id}")"
+                           EndIcon="@Icons.Material.Filled.Visibility">
+                    View Booking
+                </MudButton>
+            }
+            else
+            {
+                <AuthorizeView Roles="@($"{nameof(Role.Admin)},{nameof(Role.Manager)},{nameof(Role.Sales)}")">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Href="@($"/bookings/create/{Enquiry.Id}")"
+                               EndIcon="@Icons.Material.Filled.Add">
+                        Create Booking
+                    </MudButton>
+                </AuthorizeView>
+            }
         </MudCardActions>
     </MudCard>
 }
@@ -78,4 +116,4 @@
 @code {
     [Parameter, EditorRequired]
     public EnquiryDTO? Enquiry { get; set; }
-} *@
+}

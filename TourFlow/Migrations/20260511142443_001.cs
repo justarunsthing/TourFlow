@@ -280,6 +280,7 @@ namespace TourFlow.Migrations
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    TourProvider = table.Column<int>(type: "integer", nullable: false),
                     EnquiryId = table.Column<int>(type: "integer", nullable: false),
                     CreatedById = table.Column<string>(type: "text", nullable: true),
                     TravelAgentId = table.Column<int>(type: "integer", nullable: true)
@@ -303,6 +304,35 @@ namespace TourFlow.Migrations
                         column: x => x.TravelAgentId,
                         principalTable: "TravelAgents",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BookingAttachments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookingId = table.Column<int>(type: "integer", nullable: false),
+                    FileUploadId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FileName = table.Column<string>(type: "text", nullable: false),
+                    ContentType = table.Column<string>(type: "text", nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    UploadedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingAttachments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BookingAttachments_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookingAttachments_Uploads_FileUploadId",
+                        column: x => x.FileUploadId,
+                        principalTable: "Uploads",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -359,6 +389,17 @@ namespace TourFlow.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_BookingAttachments_BookingId",
+                table: "BookingAttachments",
+                column: "BookingId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingAttachments_FileUploadId",
+                table: "BookingAttachments",
+                column: "FileUploadId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_CreatedById",
                 table: "Bookings",
                 column: "CreatedById");
@@ -407,13 +448,16 @@ namespace TourFlow.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "BookingAttachments");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
                 name: "Bookings");
 
             migrationBuilder.DropTable(
                 name: "Uploads");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Enquiries");

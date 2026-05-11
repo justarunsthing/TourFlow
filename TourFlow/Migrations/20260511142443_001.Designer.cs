@@ -12,7 +12,7 @@ using TourFlow.Data;
 namespace TourFlow.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260511111500_001")]
+    [Migration("20260511142443_001")]
     partial class _001
     {
         /// <inheritdoc />
@@ -292,6 +292,9 @@ namespace TourFlow.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
 
+                    b.Property<int>("TourProvider")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("TravelAgentId")
                         .HasColumnType("integer");
 
@@ -308,6 +311,42 @@ namespace TourFlow.Migrations
                     b.HasIndex("TravelAgentId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("TourFlow.Models.BookingAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("FileUploadId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("FileUploadId");
+
+                    b.ToTable("BookingAttachments");
                 });
 
             modelBuilder.Entity("TourFlow.Models.Enquiry", b =>
@@ -565,6 +604,25 @@ namespace TourFlow.Migrations
                     b.Navigation("Enquiry");
                 });
 
+            modelBuilder.Entity("TourFlow.Models.BookingAttachment", b =>
+                {
+                    b.HasOne("TourFlow.Models.Booking", "Booking")
+                        .WithOne("Attachment")
+                        .HasForeignKey("TourFlow.Models.BookingAttachment", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TourFlow.Models.FileUpload", "FileUpload")
+                        .WithMany()
+                        .HasForeignKey("FileUploadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("FileUpload");
+                });
+
             modelBuilder.Entity("TourFlow.Models.Enquiry", b =>
                 {
                     b.HasOne("TourFlow.Data.ApplicationUser", "AssignedTo")
@@ -585,6 +643,11 @@ namespace TourFlow.Migrations
             modelBuilder.Entity("TourFlow.Data.ApplicationUser", b =>
                 {
                     b.Navigation("AssignedEnquiries");
+                });
+
+            modelBuilder.Entity("TourFlow.Models.Booking", b =>
+                {
+                    b.Navigation("Attachment");
                 });
 
             modelBuilder.Entity("TourFlow.Models.Enquiry", b =>
