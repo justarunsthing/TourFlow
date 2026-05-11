@@ -27,6 +27,12 @@ body {
     right: 24px;
 }
 
+.create-booking-btn {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+}
+
 /* Default Blazor style */
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {

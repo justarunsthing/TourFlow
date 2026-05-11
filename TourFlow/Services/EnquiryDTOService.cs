@@ -18,10 +18,9 @@ namespace TourFlow.Services
 
         public async Task<IEnumerable<EnquiryDTO>> GetAllEnquiriesAsync(UserInfo user)
         {
-            IEnumerable<Enquiry> tourEnquiries = await repository.GetAllEnquiriesAsync(user);
-            IEnumerable<EnquiryDTO> tourEnquiryDTOs = tourEnquiries.Select(e => e.ToDTO());
+            IEnumerable<Enquiry> allEnquiries = await repository.GetAllEnquiriesAsync(user);
 
-            return tourEnquiryDTOs;
+            return allEnquiries.Select(e => e.ToDTO());
         }
 
         public async Task<EnquiryDTO> CreateEnquiryAsync(EnquiryDTO enquiry, UserInfo user)
@@ -57,9 +56,9 @@ namespace TourFlow.Services
             return dbEnquiry.ToDTO();
         }
 
-        public async Task UpdateEnquiryAsync(int enquiryId, UserInfo user)
+        public async Task SetEnquiryToQuotedAsync(int enquiryId, UserInfo user)
         {
-            await repository.UpdateEnquiryAsync(enquiryId, user);
+            await repository.SetEnquiryToQuotedAsync(enquiryId, user);
         }
     }
 }

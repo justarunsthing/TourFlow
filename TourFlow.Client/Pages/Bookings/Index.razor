@@ -1,0 +1,43 @@
+﻿@page "/bookings"
+@using TourFlow.Client.UI.Bookings
+@using TourFlow.Client.UI.Enquiries
+@attribute [Authorize]
+@inject IBookingDTOService BookingService
+
+<PageTitle>All Bookings | Tour Flow</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4 page-container">
+
+    @if (bookings.Count() > 0)
+    {
+        <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
+            @foreach (var booking in bookings)
+            {
+                <div class="col">
+                    <BookingCard Booking="booking" />
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <MudText Color="Color.Tertiary" Typo="Typo.button">
+                No Bookings Found
+            </MudText>
+        </div>
+    }
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private IEnumerable<BookingDTO> bookings = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserInfo? userInfo = await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+        bookings = await BookingService.GetAllBookingsAsync(userInfo!);
+    }
+}

@@ -72,7 +72,7 @@
                     <div class="d-flex flex-column">
                         <MudText Typo="Typo.caption" Class="mb-1">Status</MudText>
                         <MudChip T="string"
-                                 Color="@(booking.Status == BookingStatus.Confirmed ? Color.Success : Color.Warning)"
+                                 Color="@(booking.Status.GetColor())"
                                  Size="Size.Small">
                             @booking.Status.GetDisplayName()
                         </MudChip>

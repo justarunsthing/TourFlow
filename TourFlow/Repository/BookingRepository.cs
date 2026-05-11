@@ -24,6 +24,31 @@ namespace TourFlow.Repository
             return booking;
         }
 
+        public async Task<IEnumerable<Booking>> GetAllBookingsAsync(UserInfo user)
+        {
+            await using ApplicationDbContext context = contextFactory.CreateDbContext();
+
+            if (user.TravelAgentId != 0)
+            {
+                return await context.Bookings
+                    .Where(b => b.Enquiry.TravelAgentId == user.TravelAgentId)
+                    .Include(b => b.Enquiry)
+                    .Include(b => b.CreatedBy)
+                    .Include(b => b.Attachment)
+                        .ThenInclude(a => a.FileUpload)
+                    .ToListAsync();
+            }
+            else
+            {
+                return await context.Bookings
+                    .Include(b => b.Enquiry)
+                    .Include(b => b.CreatedBy)
+                    .Include(b => b.Attachment)
+                        .ThenInclude(a => a.FileUpload)
+                    .ToListAsync();
+            }
+        }
+
         public async Task<Booking> CreateBookingAsync(Booking booking, UserInfo user, IBrowserFile file)
         {
             await using ApplicationDbContext context = contextFactory.CreateDbContext();

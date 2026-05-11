@@ -1,0 +1,75 @@
+﻿@inherits MudComponentBase
+
+@if (Booking is not null)
+{
+    <MudCard Elevation="3" Class="h-100 booking-card">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <div class="d-flex justify-space-between align-center">
+                    <MudText Typo="Typo.h6" Color="Color.Primary">
+                        Booking #@Booking.Id
+                    </MudText>
+                    <MudChip T="string"
+                             Color="@Booking.Status.GetColor()"
+                             Size="Size.Small"
+                             Label="true">
+                        @Booking.Status.GetDisplayName()
+                    </MudChip>
+                </div>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent Class="flex-grow-1">
+            <div class="mb-4">
+                <MudText Typo="Typo.caption">Tour Provider</MudText>
+                <MudText Typo="Typo.body1" Class="font-weight-medium">
+                    @Booking.TourProvider.GetDisplayName()
+                </MudText>
+            </div>
+
+            <div class="mb-4">
+                <MudText Typo="Typo.caption">Total Amount</MudText>
+                <MudText Typo="Typo.h5" Color="Color.Success" Class="font-weight-medium">
+                    @Booking.TotalAmount.ToString("C0") @Booking.Currency
+                </MudText>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Booking.Description))
+            {
+                <div>
+                    <MudText Typo="Typo.caption" Class="mb-1">Itinerary Description</MudText>
+                    <MudText Typo="Typo.body2" Class="line-clamp-3">
+                        @Booking.Description
+                    </MudText>
+                </div>
+            }
+
+            @if (Booking.Attachment != null)
+            {
+                <div class="mt-4">
+                    <MudChip T="string"
+                             Icon="@Icons.Material.Filled.AttachFile"
+                             Color="Color.Info"
+                             Size="Size.Small">
+                        @Booking.Attachment.FileName
+                    </MudChip>
+                </div>
+            }
+        </MudCardContent>
+
+        <MudCardActions>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Href="@($"/bookings/{Booking.Id}")"
+                       EndIcon="@Icons.Material.Filled.ArrowForward"
+                       FullWidth="true">
+                View Full Details
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public BookingDTO? Booking { get; set; }
+}

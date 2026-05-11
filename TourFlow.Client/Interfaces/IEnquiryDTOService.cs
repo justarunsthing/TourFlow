@@ -7,6 +7,6 @@ namespace TourFlow.Client.Interfaces
         Task<EnquiryDTO?> GetEnquiryByIdAsync(int enquiryId);
         Task<IEnumerable<EnquiryDTO>> GetAllEnquiriesAsync(UserInfo user);
         Task<EnquiryDTO> CreateEnquiryAsync(EnquiryDTO enquiry, UserInfo user);
-        Task UpdateEnquiryAsync(int enquiryId, UserInfo user);
+        Task SetEnquiryToQuotedAsync(int enquiryId, UserInfo user);
     }
 }

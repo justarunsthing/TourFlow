@@ -52,7 +52,7 @@ namespace TourFlow.Repository
             return enquiry;
         }
 
-        public async Task UpdateEnquiryAsync(int enquiryId, UserInfo user)
+        public async Task SetEnquiryToQuotedAsync(int enquiryId, UserInfo user)
         {
             await using ApplicationDbContext context = contextFactory.CreateDbContext();
 

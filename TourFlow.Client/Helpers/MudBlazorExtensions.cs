@@ -18,5 +18,18 @@ namespace TourFlow.Client.Helpers
 
             return color;
         }
+
+        public static Color GetColor(this BookingStatus priority)
+        {
+            Color color = priority switch
+            {
+                BookingStatus.InProgress => Color.Info,
+                BookingStatus.Confirmed => Color.Success,
+                BookingStatus.Cancelled => Color.Error,
+                _ => Color.Default
+            };
+
+            return color;
+        }
     }
 }

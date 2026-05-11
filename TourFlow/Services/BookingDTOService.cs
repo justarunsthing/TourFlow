@@ -47,6 +47,12 @@ namespace TourFlow.Services
 
             return dbBooking.ToDTO();
         }
+        
+        public async Task<IEnumerable<BookingDTO>> GetAllBookingsAsync(UserInfo user)
+        {
+            IEnumerable<Booking> allBookings = await repository.GetAllBookingsAsync(user);
+            return allBookings.Select(b => b.ToDTO());
+        }
 
         public async Task CancelBookingAsync(int bookingId, UserInfo user)
         {
