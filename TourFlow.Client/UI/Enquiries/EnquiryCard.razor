@@ -1,0 +1,81 @@
+﻿@* @inherits MudComponentBase
+
+@if (Enquiry is not null)
+{
+    <MudCard Elevation="3" Class="h-100 enquiry-card">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <div class="d-flex justify-space-between align-center">
+                    <MudText Typo="Typo.h6" Color="Color.Primary">
+                        @Enquiry.Destination
+                    </MudText>
+                    <MudChip T="string"
+                             Color="@Enquiry.Status.GetColor()"
+                             Size="Size.Small"
+                             Label="true">
+                        @Enquiry.Status.GetDisplayName()
+                    </MudChip>
+                </div>
+
+                <MudText Typo="Typo.subtitle2" Class="mt-1">
+                    @Enquiry.StartDate.ToString("dd MMM yyyy") - @Enquiry.EndDate.ToString("dd MMM yyyy")
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+
+        <MudCardContent Class="flex-grow-1">
+            <div class="d-flex gap-4 text-muted">
+                <div>
+                    <MudText Typo="Typo.caption">Group Size</MudText>
+                    <MudText Typo="Typo.body1" Class="font-weight-medium">
+                        @Enquiry.GroupSize people
+                    </MudText>
+                </div>
+
+                <div>
+                    <MudText Typo="Typo.caption">Budget</MudText>
+                    <MudText Typo="Typo.body1" Class="font-weight-medium">
+                        @Enquiry.Budget
+                    </MudText>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Enquiry.RequestedServices))
+            {
+                <div class="mt-4">
+                    <MudText Typo="Typo.caption" Class="mb-1">Requested Services</MudText>
+                    <MudText Typo="Typo.body2" Class="line-clamp-2">
+                        @Enquiry.RequestedServices
+                    </MudText>
+                </div>
+            }
+
+            @if (Enquiry.AssignedTo is not null)
+            {
+                <div class="mt-4 d-flex align-center gap-2">
+                    <MudAvatar Size="Size.Small">
+                        <MudImage Src="@Enquiry.AssignedTo.ImageUrl" />
+                    </MudAvatar>
+                    <div>
+                        <MudText Typo="Typo.caption">Assigned To</MudText>
+                        <MudText Typo="Typo.body2">@Enquiry.AssignedTo.FullName</MudText>
+                    </div>
+                </div>
+            }
+        </MudCardContent>
+
+        <MudCardActions Class="d-flex justify-end gap-2">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Href="@($"/enquiries/{Enquiry.Id}")"
+                       EndIcon="@Icons.Material.Filled.ArrowForward">
+                View Details
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public EnquiryDTO? Enquiry { get; set; }
+} *@

@@ -7,6 +7,7 @@ namespace TourFlow.Client.Enums
     {
         Admin,
         Manager,
-        Sales
+        Sales,
+        TravelAgent
     }
 }

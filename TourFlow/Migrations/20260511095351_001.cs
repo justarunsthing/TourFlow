@@ -40,6 +40,20 @@ namespace TourFlow.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TravelAgents",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TravelAgents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Uploads",
                 columns: table => new
                 {
@@ -81,6 +95,7 @@ namespace TourFlow.Migrations
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     ProfilePictureId = table.Column<Guid>(type: "uuid", nullable: true),
+                    TravelAgentId = table.Column<int>(type: "integer", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -103,6 +118,11 @@ namespace TourFlow.Migrations
                         name: "FK_AspNetUsers_Images_ProfilePictureId",
                         column: x => x.ProfilePictureId,
                         principalTable: "Images",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_TravelAgents_TravelAgentId",
+                        column: x => x.TravelAgentId,
+                        principalTable: "TravelAgents",
                         principalColumn: "Id");
                 });
 
@@ -229,7 +249,8 @@ namespace TourFlow.Migrations
                     Status = table.Column<int>(type: "integer", nullable: false),
                     CreatedById = table.Column<string>(type: "text", nullable: true),
                     AssignedToId = table.Column<string>(type: "text", nullable: true),
-                    BookingId = table.Column<int>(type: "integer", nullable: true)
+                    BookingId = table.Column<int>(type: "integer", nullable: true),
+                    TravelAgentId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -238,6 +259,11 @@ namespace TourFlow.Migrations
                         name: "FK_Enquiries_AspNetUsers_AssignedToId",
                         column: x => x.AssignedToId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Enquiries_TravelAgents_TravelAgentId",
+                        column: x => x.TravelAgentId,
+                        principalTable: "TravelAgents",
                         principalColumn: "Id");
                 });
 
@@ -254,7 +280,8 @@ namespace TourFlow.Migrations
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Updated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     EnquiryId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedById = table.Column<string>(type: "text", nullable: true)
+                    CreatedById = table.Column<string>(type: "text", nullable: true),
+                    TravelAgentId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -270,6 +297,11 @@ namespace TourFlow.Migrations
                         principalTable: "Enquiries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bookings_TravelAgents_TravelAgentId",
+                        column: x => x.TravelAgentId,
+                        principalTable: "TravelAgents",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -314,6 +346,12 @@ namespace TourFlow.Migrations
                 column: "ProfilePictureId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_TravelAgentId",
+                table: "AspNetUsers",
+                column: "TravelAgentId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -331,9 +369,19 @@ namespace TourFlow.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_TravelAgentId",
+                table: "Bookings",
+                column: "TravelAgentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Enquiries_AssignedToId",
                 table: "Enquiries",
                 column: "AssignedToId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Enquiries_TravelAgentId",
+                table: "Enquiries",
+                column: "TravelAgentId");
         }
 
         /// <inheritdoc />
@@ -374,6 +422,9 @@ namespace TourFlow.Migrations
 
             migrationBuilder.DropTable(
                 name: "Images");
+
+            migrationBuilder.DropTable(
+                name: "TravelAgents");
         }
     }
 }

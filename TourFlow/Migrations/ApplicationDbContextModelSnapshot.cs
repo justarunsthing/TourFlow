@@ -232,6 +232,9 @@ namespace TourFlow.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
+                    b.Property<int?>("TravelAgentId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -249,6 +252,9 @@ namespace TourFlow.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.HasIndex("ProfilePictureId");
+
+                    b.HasIndex("TravelAgentId")
+                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -283,6 +289,9 @@ namespace TourFlow.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("numeric");
 
+                    b.Property<int?>("TravelAgentId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("Updated")
                         .HasColumnType("timestamp with time zone");
 
@@ -292,6 +301,8 @@ namespace TourFlow.Migrations
 
                     b.HasIndex("EnquiryId")
                         .IsUnique();
+
+                    b.HasIndex("TravelAgentId");
 
                     b.ToTable("Bookings");
                 });
@@ -340,6 +351,9 @@ namespace TourFlow.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("TravelAgentId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("TravelAgentName")
                         .HasColumnType("text");
 
@@ -349,6 +363,8 @@ namespace TourFlow.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedToId");
+
+                    b.HasIndex("TravelAgentId");
 
                     b.ToTable("Enquiries");
                 });
@@ -389,6 +405,25 @@ namespace TourFlow.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("TourFlow.Models.TravelAgent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TravelAgents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -497,7 +532,13 @@ namespace TourFlow.Migrations
                         .WithMany()
                         .HasForeignKey("ProfilePictureId");
 
+                    b.HasOne("TourFlow.Models.TravelAgent", "TravelAgent")
+                        .WithOne("User")
+                        .HasForeignKey("TourFlow.Data.ApplicationUser", "TravelAgentId");
+
                     b.Navigation("ProfilePicture");
+
+                    b.Navigation("TravelAgent");
                 });
 
             modelBuilder.Entity("TourFlow.Models.Booking", b =>
@@ -512,6 +553,10 @@ namespace TourFlow.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TourFlow.Models.TravelAgent", null)
+                        .WithMany("Bookings")
+                        .HasForeignKey("TravelAgentId");
+
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Enquiry");
@@ -522,6 +567,10 @@ namespace TourFlow.Migrations
                     b.HasOne("TourFlow.Data.ApplicationUser", "AssignedTo")
                         .WithMany("AssignedEnquiries")
                         .HasForeignKey("AssignedToId");
+
+                    b.HasOne("TourFlow.Models.TravelAgent", null)
+                        .WithMany("Enquiries")
+                        .HasForeignKey("TravelAgentId");
 
                     b.Navigation("AssignedTo");
                 });
@@ -534,6 +583,15 @@ namespace TourFlow.Migrations
             modelBuilder.Entity("TourFlow.Models.Enquiry", b =>
                 {
                     b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("TourFlow.Models.TravelAgent", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Enquiries");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

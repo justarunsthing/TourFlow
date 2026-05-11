@@ -10,25 +10,22 @@
             </MudNavLink>
         </MudNavGroup>
     </AuthorizeView>
-    <AuthorizeView>
 
+    <AuthorizeView Roles="@($"{Role.TravelAgent}")">
+        <MudNavGroup Title="Home" Expanded="true">
+            <MudNavLink Href="/enquiries" Icon="@Icons.Material.Filled.Dashboard">
+                Dashboard
+            </MudNavLink>
+        </MudNavGroup>
+    </AuthorizeView>
+
+    <AuthorizeView>
         <MudNavGroup Title="Enquiries" Expanded>
             <MudNavLink Href="/enquiries" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.FolderCopy">
                 All Enquiries
             </MudNavLink>
             <MudNavLink Href="/enquiries/assigned" Icon="@Icons.Material.Filled.FolderShared">
                 My Enquiries
-            </MudNavLink>
-        </MudNavGroup>
-        <MudNavGroup Title="Quotations" Expanded>
-            <MudNavLink Href="/quotations" Icon="@Icons.Material.Filled.Assignment">
-                All Quotations
-            </MudNavLink>
-            <MudNavLink Href="/quotations/assigned" Icon="@Icons.Material.Filled.AssignmentInd">
-                My Quotations
-            </MudNavLink>
-            <MudNavLink Href="/quotations/create" Icon="@Icons.Material.Filled.AssignmentLate">
-                Create Quotation
             </MudNavLink>
         </MudNavGroup>
         <MudNavGroup Title="Bookings" Expanded>
@@ -43,13 +40,14 @@
             </MudNavLink>
         </MudNavGroup>
     </AuthorizeView>
+
     <MudNavGroup Title="Account" Expanded>
         <AuthorizeView>
             <Authorized>
                 <MudNavLink Href="/account/manage" Icon="@Icons.Material.Filled.Person">
                     @context.User.Identity!.Name
                 </MudNavLink>
-                <MudNavLink UserAttributes="@(new() { ["onclick"] = "logoutForm.submit()" })" 
+                <MudNavLink UserAttributes="@(new() { ["onclick"] = "logoutForm.submit()" })"
                             ActiveClass=""
                             Icon="@Icons.Material.Filled.Logout">
                     Logout

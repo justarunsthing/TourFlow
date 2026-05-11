@@ -1,0 +1,119 @@
+﻿@page "/enquiries/create"
+@attribute [Authorize(Roles = $"{nameof(Role.TravelAgent)}")]
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>New Enquiry - Tour Flow</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudBreadcrumbs Items="breadcrumbs" />
+
+    <MudPaper Class="p-3">
+        <MudText Typo="Typo.h6" GutterBottom>
+            Create a new enquiry
+        </MudText>
+
+        <EditForm Model="enquiry" class="vstack gap-3" OnValidSubmit="HandleSubmit" FormName="create-enquiry">
+            <DataAnnotationsValidator />
+
+            <MudTextField T="int"
+                          @bind-Value="enquiry.GroupSize"
+                          For="() => enquiry.GroupSize"
+                          Label="Group Size"
+                          Variant="Variant.Outlined" />
+
+            <MudTextField @bind-Value="enquiry.Destination"
+                          For="() => enquiry.Destination"
+                          Label="Destination"
+                          Variant="Variant.Outlined" />
+
+            <MudTextField @bind-Value="enquiry.Budget"
+                          For="() => enquiry.Budget"
+                          Label="Budget"
+                          Variant="Variant.Outlined"
+                          Placeholder="£ XXXXX"/>
+
+            <div class="hstack gap-3 align-items-start flex-wrap align-items-start">
+                <MudDatePicker @bind-Date="enquiry.StartDateTime"
+                               Label="Start Date"
+                               Variant="Variant.Outlined"
+                               For="() => enquiry.StartDateTime"
+                               Clearable="true"
+                               MinDate="@DateTime.Today.AddDays(1)"
+                               ErrorText="Please enter a valid start date" />
+
+                <MudDatePicker @bind-Date="enquiry.EndDateTime"
+                               Label="End Date"
+                               Variant="Variant.Outlined"
+                               For="() => enquiry.EndDateTime"
+                               Clearable="true"
+                               ErrorText="Please enter a valid end date"
+                               MinDate="@(enquiry.StartDateTime?.AddDays(1) ?? DateTime.Today)" />
+            </div>
+
+            
+            <MudTextField @bind-Value="enquiry.RequestedServices"
+                          For="() => enquiry.RequestedServices"
+                          Label="Requested Services"
+                          Variant="Variant.Outlined" />
+
+            <MudTextField @bind-Value="enquiry.AdditionalNotes"
+                          For="() => enquiry.AdditionalNotes"
+                          Label="Additional Notes"
+                          Variant="Variant.Outlined" />
+            <div class="d-flex">
+                <MudButton Variant="Variant.Text"
+                           Href="/enquiries"
+                           StartIcon="@Icons.Material.Filled.ArrowBack">
+                    Back to Enquiries
+                </MudButton>
+                <MudButton ButtonType="ButtonType.Submit"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Create"
+                           Variant="Variant.Filled"
+                           Class="ms-auto">
+                    Create
+                </MudButton>
+            </div>
+        </EditForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    UserInfo? userInfo;
+
+    private EnquiryDTO enquiry = new()
+    {
+        Created = DateTimeOffset.UtcNow
+    };
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("Enquiries", href: "/enquiries"),
+        new BreadcrumbItem("New Enquiry", href: null, disabled: true)
+    };
+
+    
+    private async Task HandleSubmit()
+    {
+        userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthState);
+
+        try
+        {
+            // Snackbar.Add($"Project '{project.Name}' was created successfully!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("An error occurred while creating the project!", Severity.Error);
+
+            return;
+        }
+
+        // Nav.NavigateTo($"/projects/{project.Id}");
+    }
+}

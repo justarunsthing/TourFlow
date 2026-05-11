@@ -34,6 +34,7 @@ namespace TourFlow.Models
             return new EnquiryDTO
             {
                 Id = e.Id,
+                TravelAgentName = e.TravelAgentName,
                 GroupSize = e.GroupSize,
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,

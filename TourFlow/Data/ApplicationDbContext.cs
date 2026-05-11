@@ -10,6 +10,7 @@ namespace TourFlow.Data
         public DbSet<FileUpload> Uploads { get; set; }
         public DbSet<Enquiry> Enquiries { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<TravelAgent> TravelAgents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

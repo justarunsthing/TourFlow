@@ -56,8 +56,8 @@ namespace TourFlow.Data
             string defaultPassword = configurationSvc["DefaultPassword"] ?? throw new ApplicationException("Error seeding data - no DefaultPassword configured!");
 
             await SeedRolesAsync(roleManagerSvc);
-            await SeedDefaultUsersAsync(userManagerSvc, dbContextSvc, defaultPassword);
-            await SeedSampleEnquiriesAsync(dbContextSvc, userManagerSvc);
+            await SeedInternalUsersAsync(userManagerSvc, dbContextSvc, defaultPassword);
+            await SeedTravelAgentAsync(userManagerSvc, dbContextSvc, defaultPassword);
             await dbContextSvc.DisposeAsync();
         }
 
@@ -72,7 +72,7 @@ namespace TourFlow.Data
             }
         }
 
-        public static async Task SeedDefaultUsersAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context, string defaultPassword)
+        public static async Task SeedInternalUsersAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context, string defaultPassword)
         {
             var defaultUser = new ApplicationUser
             {
@@ -143,43 +143,40 @@ namespace TourFlow.Data
             }
         }
 
-        private static async Task SeedSampleEnquiriesAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public static async Task SeedTravelAgentAsync(UserManager<ApplicationUser> userManager, ApplicationDbContext context, string defaultPassword)
         {
-            if (await context.Enquiries.AnyAsync()) return;
-
-            var sales1 = await userManager.FindByEmailAsync("sales1.tourflow@mailinator.com");
-
-            var enquiries = new List<Enquiry>
+            if (await context.TravelAgents.AnyAsync())
             {
-                new Enquiry
-                {
-                    TravelAgentName = "Sky Travels",
-                    GroupSize = 42,
-                    StartDate = DateTimeOffset.UtcNow.AddMonths(2),
-                    EndDate = DateTimeOffset.UtcNow.AddMonths(2).AddDays(7),
-                    Destination = "Portugal - Lisbon & Douro Valley",
-                    Budget = "£28,000 - £34,000",
-                    RequestedServices = "4* hotels, private coach, wine tasting, city tours",
-                    Status = EnquiryStatus.New,
-                    Created = DateTimeOffset.UtcNow.AddDays(-3)
-                },
-                new Enquiry
-                {
-                    TravelAgentName = "Imperial Tours & Travels",
-                    GroupSize = 25,
-                    StartDate = DateTimeOffset.UtcNow.AddMonths(1).AddDays(10),
-                    EndDate = DateTimeOffset.UtcNow.AddMonths(1).AddDays(18),
-                    Destination = "Spain - Andalusia (Seville, Cordoba, Granada)",
-                    Budget = "£24,500",
-                    RequestedServices = "Luxury coach, flamenco experience, guided tours",
-                    Status = EnquiryStatus.Quoted,
-                    AssignedToId = sales1?.Id,
-                    Created = DateTimeOffset.UtcNow.AddDays(-12)
-                }
+                return;
+            }
+
+            var defaultTravelAgent = new TravelAgent
+            {
+                Name = "Imperial Tours"
             };
 
-            await context.Enquiries.AddRangeAsync(enquiries);
+            await context.TravelAgents.AddAsync(defaultTravelAgent);
             await context.SaveChangesAsync();
+
+            var travelAgent = await context.TravelAgents.FirstAsync(t => t.Name == "Imperial Tours");
+
+            var defaultUser = new ApplicationUser
+            {
+                UserName = "imperialtours@mailinator.com",
+                Email = "imperialtours@mailinator.com",
+                FirstName = "Imperial",
+                LastName = "Tours",
+                EmailConfirmed = true,
+                TravelAgentId = travelAgent.Id
+            };
+
+            var user = await userManager.FindByEmailAsync(defaultUser.Email);
+
+            if (user == null)
+            {
+                await userManager.CreateAsync(defaultUser, defaultPassword);
+                await userManager.AddToRoleAsync(defaultUser, nameof(Role.TravelAgent));
+            }
         }
     }
 }
