@@ -1,21 +1,32 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.EntityFrameworkCore;
 using TourFlow.Client;
 using TourFlow.Client.Enums;
 using TourFlow.Client.Interfaces;
 using TourFlow.Client.Models;
 using TourFlow.Data;
-using TourFlow.Helpers;
+using TourFlow.Interfaces;
 using TourFlow.Models;
 
 namespace TourFlow.Services
 {
-    public class BookingDTOService(ApplicationDbContext context) : IBookingDTOService
+    public class BookingDTOService(IBookingRepository repository) : IBookingDTOService
     {
-        private readonly ApplicationDbContext _context = context;
+        public async Task<BookingDTO?> GetBookingByIdAsync(int bookingId)
+        {
+            Booking? booking = await repository.GetBookingByIdAsync(bookingId);
+
+            if (booking is null)
+            {
+                return null;
+            }
+
+            return booking?.ToDTO();
+        }
 
         public async Task<BookingDTO> CreateBookingAsync(BookingDTO dto, UserInfo user, IBrowserFile file)
         {
-            var booking = new Booking
+            Booking dbBooking = new()
             {
                 EnquiryId = dto.EnquiryId,
                 Description = dto.Description,
@@ -27,54 +38,24 @@ namespace TourFlow.Services
                 Created = DateTimeOffset.UtcNow
             };
 
-            _context.Bookings.Add(booking);
-
-            await _context.SaveChangesAsync();
-
-            if (file != null)
-            {
-                try
-                {
-                    await using var stream = file.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
-
-                    using var memoryStream = new MemoryStream();
-                    await stream.CopyToAsync(memoryStream);
-                    var fileBytes = memoryStream.ToArray();
-
-                    var fileUpload = new FileUpload
-                    {
-                        Id = Guid.NewGuid(),
-                        Data = fileBytes,
-                        Type = file.ContentType
-                    };
-
-                    var attachment = new BookingAttachment
-                    {
-                        BookingId = booking.Id,
-                        FileUploadId = fileUpload.Id,
-                        FileName = file.Name,
-                        ContentType = file.ContentType,
-                        FileSize = file.Size,
-                        UploadedAt = DateTimeOffset.UtcNow
-                    };
-
-                    _context.Uploads.Add(fileUpload);
-                    _context.BookingAttachments.Add(attachment);
-
-                    await _context.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
+            dbBooking = await repository.CreateBookingAsync(dbBooking, user, file);
 
             Console.WriteLine("******** EMAIL SERVICE ********");
             Console.WriteLine($"You have received a new quotation from Tour Flow");
             Console.WriteLine($"A new enquiry email has been sent to travel agent");
             Console.WriteLine("******** EMAIL SERVICE ********");
 
-            return booking.ToDTO();
+            return dbBooking.ToDTO();
+        }
+
+        public async Task CancelBookingAsync(int bookingId, UserInfo user)
+        {
+            await repository.CancelBookingAsync(bookingId, user);
+        }
+
+        public async Task ConfirmBookingAsync(int bookingId, UserInfo user)
+        {
+            await repository.ConfirmBookingAsync(bookingId, user);
         }
     }
 }

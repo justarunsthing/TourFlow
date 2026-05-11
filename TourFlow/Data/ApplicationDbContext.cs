@@ -22,6 +22,12 @@ namespace TourFlow.Data
                 .WithOne(e => e.Booking)
                 .HasForeignKey<Booking>(b => b.EnquiryId) // Booking is the dependent side
                 .OnDelete(DeleteBehavior.Cascade); // Delete booking if enquiry is deleted
+
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.Attachment)
+                .WithOne(a => a.Booking)
+                .HasForeignKey<BookingAttachment>(a => a.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

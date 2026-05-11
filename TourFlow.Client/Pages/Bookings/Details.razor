@@ -1,0 +1,238 @@
+﻿@page "/bookings/{BookingId:int}"
+@inject IBookingDTOService BookingService
+@inject IEnquiryDTOService EnquiryService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Booking Details - Tour Flow</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-6">
+    <MudBreadcrumbs Items="breadcrumbs" />
+
+    @if (booking == null)
+    {
+        <MudProgressCircular Indeterminate Color="Color.Primary" />
+    }
+    else
+    {
+        <!-- Enquiry Summary -->
+        <MudPaper Class="pa-6 mb-6">
+            <MudText Typo="Typo.h5" GutterBottom="true">Enquiry Details</MudText>
+            <MudGrid Spacing="4">
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Destination</MudText>
+                    <MudText Typo="Typo.body1">@enquiry.Destination</MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Group Size</MudText>
+                    <MudText Typo="Typo.body1">@enquiry.GroupSize people</MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Dates</MudText>
+                    <MudText Typo="Typo.body1">
+                        @enquiry.StartDate?.ToString("dd MMM yyyy") — @enquiry.EndDate?.ToString("dd MMM yyyy")
+                    </MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Budget</MudText>
+                    <MudText Typo="Typo.body1">@enquiry.Budget</MudText>
+                </MudItem>
+            </MudGrid>
+
+            @if (!string.IsNullOrWhiteSpace(enquiry.RequestedServices))
+            {
+                <div class="mt-4">
+                    <MudText Typo="Typo.caption">Requested Services</MudText>
+                    <MudText Typo="Typo.body2">@enquiry.RequestedServices</MudText>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(enquiry.AdditionalNotes))
+            {
+                <div class="mt-4">
+                    <MudText Typo="Typo.caption">Additional Notes</MudText>
+                    <MudText Typo="Typo.body2">@enquiry.AdditionalNotes</MudText>
+                </div>
+            }
+        </MudPaper>
+        <MudPaper Class="pa-6 mb-6">
+            <MudText Typo="Typo.h5" GutterBottom="true">Booking Details</MudText>
+            <MudGrid Spacing="4">
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Tour Provider</MudText>
+                    <MudText Typo="Typo.body1">@booking.TourProvider.GetDisplayName()</MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudText Typo="Typo.caption">Total Amount</MudText>
+                    <MudText Typo="Typo.h5" Color="Color.Success">
+                        @booking.TotalAmount.ToString("C0")
+                    </MudText>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <div class="d-flex flex-column">
+                        <MudText Typo="Typo.caption" Class="mb-1">Status</MudText>
+                        <MudChip T="string"
+                                 Color="@(booking.Status == BookingStatus.Confirmed ? Color.Success : Color.Warning)"
+                                 Size="Size.Small">
+                            @booking.Status.GetDisplayName()
+                        </MudChip>
+                    </div>
+                </MudItem>
+            </MudGrid>
+
+            <div class="mt-4">
+                <MudText Typo="Typo.caption">Itinerary Description</MudText>
+                <MudText Typo="Typo.body2" Class="mt-1">@booking.Description</MudText>
+            </div>
+
+            @if (booking.Attachment != null)
+            {
+                <div class="mt-8">
+                    <MudText Typo="Typo.subtitle2" Class="mb-3">Attached Documents</MudText>
+                    <MudList T="AttachmentDTO">
+                        <MudListItem T="AttachmentDTO" Icon="@Icons.Material.Filled.AttachFile">
+                            <MudLink Href="@booking.Attachment.Url" Target="_blank">@booking.Attachment.FileName</MudLink>
+                        </MudListItem>
+                    </MudList>
+                </div>
+            }
+
+            <div class="d-flex mt-3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.ArrowBack" Href="/bookings">
+                    Back to Bookings
+                </MudButton>
+
+                @if (booking.Status == BookingStatus.InProgress)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               OnClick="ConfirmCancelBookingToggle"
+                               StartIcon="@Icons.Material.Filled.Cancel"
+                               Class="ms-auto me-2">
+                        Cancel Booking
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Success"
+                               OnClick="ConfirmBookingToggle"
+                               StartIcon="@Icons.Material.Filled.CheckCircle">
+
+                        Confirm Booking
+                    </MudButton>
+                }
+            </div>
+        </MudPaper>
+
+        @* Cancel booking mud dialog box *@
+        <MudMessageBox @ref="cancelBookingBox" CancelText="Go Back">
+            <MessageContent>
+                Are you sure you want to cancel this booking?
+            </MessageContent>
+            <YesButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" Class="ms-2" OnClick="HandleCancelBooking">
+                    Cancel
+                </MudButton>
+            </YesButton>
+        </MudMessageBox>
+
+        @* Confirm booking mud dialog box *@
+        <MudMessageBox @ref="confirmBookingBox" CancelText="Go Back">
+            <MessageContent>
+                Are you sure you want to confirm this booking?
+            </MessageContent>
+            <YesButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save" Class="ms-2" OnClick="HandleConfirmBooking">
+                    Confirm
+                </MudButton>
+            </YesButton>
+        </MudMessageBox>
+    }
+</MudContainer>
+
+    @code {
+    [Parameter]
+    public int BookingId { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+
+    private UserInfo? userInfo;
+
+    private bool isLoading = true;
+    private BookingDTO? booking;
+    private EnquiryDTO? enquiry;
+
+    private MudMessageBox? cancelBookingBox;
+    private MudMessageBox? confirmBookingBox;
+
+    private static readonly List<BreadcrumbItem> breadcrumbs = new()
+    {
+        new BreadcrumbItem("Home", "/dashboard"),
+        new BreadcrumbItem("My Bookings", "/bookings"),
+        new BreadcrumbItem("Booking Details", null, disabled: true)
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        userInfo ??= await UserInfoHelper.GetUserInfoAsync(AuthStateTask);
+
+        try
+        {
+            booking = await BookingService.GetBookingByIdAsync(BookingId);
+            enquiry = await EnquiryService.GetEnquiryByIdAsync(booking!.EnquiryId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("An error occurred loading the booking!", Severity.Error);
+        }
+    }
+
+    private async Task ConfirmCancelBookingToggle()
+    {
+        if (cancelBookingBox is not null)
+        {
+            await cancelBookingBox.ShowAsync();
+        }
+    }
+
+    private async Task ConfirmBookingToggle()
+    {
+        if (confirmBookingBox is not null)
+        {
+            await confirmBookingBox.ShowAsync();
+        }
+    }
+
+    private async Task HandleCancelBooking()
+    {
+        try
+        {
+            await BookingService.CancelBookingAsync(BookingId, userInfo!);
+            booking = await BookingService.GetBookingByIdAsync(BookingId);
+            enquiry = await EnquiryService.GetEnquiryByIdAsync(booking!.EnquiryId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("The booking has been cancelled!", Severity.Success);
+        }
+    }
+
+    
+    private async Task HandleConfirmBooking()
+    {
+        try
+        {
+            await BookingService.ConfirmBookingAsync(BookingId, userInfo!);
+            booking = await BookingService.GetBookingByIdAsync(BookingId);
+            enquiry = await EnquiryService.GetEnquiryByIdAsync(booking!.EnquiryId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("The booking has been successfully confirmed!", Severity.Success);
+        }
+    }
+}

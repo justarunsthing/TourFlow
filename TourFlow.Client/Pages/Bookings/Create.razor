@@ -114,9 +114,9 @@
                                    MaxFileSize="@MaxFileSize"
                                    HideContent="true">
                         <MudButton Variant="Variant.Outlined"
-                                   Color="Color.Primary"
+                                   Color="Color.Secondary"
                                    StartIcon="@Icons.Material.Filled.CloudUpload">
-                            Upload Itinerary File
+                            Upload File
                         </MudButton>
                     </MudFileUpload>
 
@@ -168,7 +168,7 @@
     public int EnquiryId { get; set; }
 
     private EnquiryDTO? enquiry;
-    private BookingDTO booking = new() { Currency = "GBP" };
+    private BookingDTO booking = new();
     private IBrowserFile? selectedFile;
     private bool isSubmitting = false;
     private const long MaxFileSize = 15 * 1024 * 1024;
@@ -180,7 +180,7 @@
         new BreadcrumbItem("Create Booking", null, disabled: true)
     };
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         enquiry = await EnquiryService.GetEnquiryByIdAsync(EnquiryId);
 

@@ -1,4 +1,6 @@
-﻿namespace TourFlow.Models
+﻿using TourFlow.Client.Models;
+
+namespace TourFlow.Models
 {
     public class BookingAttachment
     {
@@ -11,5 +13,18 @@
         public string ContentType { get; set; } = string.Empty;
         public long FileSize { get; set; }
         public DateTimeOffset UploadedAt { get; set; } = DateTimeOffset.UtcNow;
+    }
+
+    public static class BookingAttachmentExtensions
+    {
+        public static AttachmentDTO ToDTO(this BookingAttachment a)
+        {
+            return new AttachmentDTO
+            {
+                Id = a.Id,
+                FileName = a.FileName,
+                Url = $"/uploads/{a.FileUploadId}"
+            };
+        }
     }
 }

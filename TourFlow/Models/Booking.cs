@@ -51,7 +51,8 @@ namespace TourFlow.Models
                 EnquiryId = b.EnquiryId,
                 CreatedById = b.CreatedById,
                 CreatedBy = b.CreatedBy?.ToDTO(),
-                TourProvider = b.TourProvider
+                TourProvider = b.TourProvider,
+                Attachment = b.Attachment?.ToDTO()
             };
         }
     }

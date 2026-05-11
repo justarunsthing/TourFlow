@@ -54,8 +54,9 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 // Repository
 builder.Services.AddScoped<IEnquiryRepository, EnquiryRepository>();
-// Services
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
+// Services
 builder.Services.AddScoped<IEnquiryDTOService, EnquiryDTOService>();
 builder.Services.AddScoped<IBookingDTOService, BookingDTOService>();
 
